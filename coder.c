@@ -65,29 +65,25 @@ int main(int args_number, char **args_value) // вводить полином, �
 {
     int poly;
     int poly_lengh=5; // контролирует размер полинома
-    int p;
+    int n, k, p, t;
 
-    if (args_number<2) //проверяем, что число аргументов 2 и больше
-    {
-        printf("not enouth arguements \n");
-        return 0;
-    }
-
-    if (strcmp("-p", args_value[1]) == 0) //считываем значение полинома
-    {
-        poly=atoi(args_value[2]);
-        
-        if (count_digits(poly)!=poly_lengh)
+    printf("Enter polinom. Example: x+1+x4 => 11001\n");
+    scanf("%d",&poly);
+    
+    if (count_digits(poly)!=poly_lengh)
         {
-            printf("polynom should be 5 digits long");
+            printf("polynom should be %d digits long \n", poly_lengh);
             return 0;
         }
-        printf("poly: %d \n", poly);
-    }
+    
+    printf("Entern info bits lengh \"k\"\n");    
+    scanf("%d",&k); //101110001
 
     poly=binaryToDecimal(poly/10, &p); // получаем вычет в 10й форме
 
-    int n=1<<p;
+    printf("poly: %d \n", poly);
+
+    n=1<<p;
     n--; // размер поля
 
     int gf[n];
@@ -102,8 +98,10 @@ int main(int args_number, char **args_value) // вводить полином, �
         printf("gf[%d] = %d \n",i, gf[i]);
     }
     */
-   
-    printf("poly: %d \n", p);
+    t=(n-k)/2; // количество гарантированно исправляемых ошибок
+ 
+    printf("k: %d \n", t);
+    printf("p: %d \n", p);
 
     return 0;  
 }
