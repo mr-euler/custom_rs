@@ -107,7 +107,7 @@ gf_elem_t gf_get(gf_t *gf, int id) {
 
 gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
 
-    gf_elem_t tmp = { gf_add_inner(a.value, b.value), a.gf };
+    gf_elem_t tmp = { a.value ^ b.value, a.gf };
 
     if (a.gf != b.gf) {
         tmp.value = 0;
