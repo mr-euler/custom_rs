@@ -1,4 +1,8 @@
 
+all: coder
 
-all:
+coder:
 	gcc src/coder.c src/binaryToDecimal.c src/count_digits.c src/buildGF.c -o main
+
+gf:
+	gcc src/gflib/gflib.c src/main.c -o main

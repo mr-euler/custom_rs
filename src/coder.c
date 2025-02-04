@@ -27,6 +27,7 @@ int main(int args_number, char **args_value) // вводить полином, �
     poly=binaryToDecimal(poly/10, &p); // получаем вычет в 10й форме
 
     printf("poly: %d \n", poly);
+    printf("p: %d \n", p);
 
     n=1<<p;
     n--; // размер поля
