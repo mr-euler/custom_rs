@@ -10,7 +10,14 @@ int main() {
 
     gf_t *gf = gf_init(m);
     gf_build(gf, polinom);
-    gf_print(gf);
+    // gf_print(gf);
+
+    gf_elem_t a = gf_get(gf, 4);
+    gf_elem_t b = gf_get(gf, 5);
+    gf_elem_t c = gf_mult(a, b, gf);
+
+    printf("%d * %d = %d\n", a, b, c);
+
     gf_free(gf);
 
     return 0;

@@ -9,17 +9,18 @@
     то есть a*x^5 + b*x^4 + c*x^3 + d*x^2 + e*x^1 + f 
 */
 
+typedef struct gf gf_t;
+typedef int gf_elem_t;
+
 struct gf
 {
     int characteristic;     // q
     int power;              // m
     int total_quantity;     // q^m
-    int *table;             // таблица элементов поля
-    int polinom;            // полином для построения
+    gf_elem_t *table;       // таблица элементов поля
+    int forming_polinom;    // полином для построения
+    int mask;               // маска для mod операции
 };
-
-typedef struct gf gf_t;
-typedef int gf_elem_t;
 
 /*
     Инициализация поля Галуа
@@ -41,7 +42,7 @@ gf_t* gf_init(int power) {
 
 /*
     Построение таблицы элементов поля
-    Пример для q = 2, m = 3, polinom = 1011 (x^3 + x + 1)
+    Пример для q = 2, m = 3, forming_polinom = 1011 (x^3 + x + 1)
 
     Получается следующая таблица:
     -----------------------------
@@ -58,25 +59,70 @@ gf_t* gf_init(int power) {
 
 void gf_build(gf_t *gf, int polinom) {
     gf->table = calloc(gf->total_quantity, sizeof(int));
-    gf->polinom = polinom;
+    gf->forming_polinom = polinom;
 
-    int mask = 1 << gf->power;
+    gf->mask = 1 << gf->power;
     gf->table[0] = 0;
     gf->table[1] = 1;
 
     for (int i = 2; i < gf->total_quantity; i++) {
         gf->table[i] = gf->table[i-1] << 1;
-        if(gf->table[i] & mask) {
+        if(gf->table[i] & gf->mask) {
             gf->table[i] ^= polinom;
         }
     }
 }
+
+
+/*
+    Получение элемента поля
+*/
+
+gf_elem_t gf_get(gf_t *gf, int id) {
+    return gf->table[id];
+}
+
+
+/*
+    Сложение элементов поля
+*/
+
+gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
+    return a ^ b;
+}
+
+
+/*
+    Умножение элементов поля
+*/
+
+gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b, gf_t *gf) {
+    gf_elem_t res = 0;
+    for (int i = 0; i < gf->power; i++) {
+        if (b & (1 << i)) {
+            res ^= a << i;
+            if (res & gf->mask) {
+                res ^= gf->forming_polinom;
+            }
+        }
+    }
+    return res;
+}
+
+/*
+    Печать элементов поля
+*/
 
 void gf_print(gf_t *gf) {
     for (int i = 0; i < gf->total_quantity; i++) {
         printf("%d: %d\n", i, gf->table[i]);
     }
 }
+
+
+/*
+    Освобождение поля
+*/
 
 void gf_free(gf_t *gf) {
     free(gf);
