@@ -4,6 +4,6 @@
 ## Использование
 
 ```bash
-make
+make gf
 ./main
 ```
