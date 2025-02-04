@@ -14,9 +14,11 @@ int main() {
 
     gf_elem_t a = gf_get(gf, 4);
     gf_elem_t b = gf_get(gf, 5);
-    gf_elem_t c = gf_mult(a, b, gf);
+    gf_elem_t c = gf_add(a, b);
+    gf_elem_t d = gf_mult(a, b);
 
-    printf("%d * %d = %d\n", a, b, c);
+    printf("%d + %d = %d\n", a.value, b.value, c.value);
+    printf("%d * %d = %d\n", a.value, b.value, d.value);
 
     gf_free(gf);
 

@@ -10,17 +10,25 @@
 */
 
 typedef struct gf gf_t;
-typedef int gf_elem_t;
+typedef int gf_inner_t;
+typedef struct gf_elem gf_elem_t;
 
 struct gf
 {
     int characteristic;     // q
     int power;              // m
     int total_quantity;     // q^m
-    gf_elem_t *table;       // таблица элементов поля
+    gf_inner_t *table;       // таблица элементов поля
     int forming_polinom;    // полином для построения
     int mask;               // маска для mod операции
 };
+
+struct gf_elem
+{
+    gf_inner_t value;
+    gf_t* gf;
+};
+
 
 /*
     Инициализация поля Галуа
@@ -79,7 +87,8 @@ void gf_build(gf_t *gf, int polinom) {
 */
 
 gf_elem_t gf_get(gf_t *gf, int id) {
-    return gf->table[id];
+    gf_elem_t tmp = { gf->table[id], gf };
+    return tmp;
 }
 
 
@@ -88,7 +97,16 @@ gf_elem_t gf_get(gf_t *gf, int id) {
 */
 
 gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
-    return a ^ b;
+
+    gf_elem_t tmp = { a.value ^ b.value, a.gf };
+
+    if (a.gf != b.gf) {
+        tmp.value = 0;
+        tmp.gf = 0;
+        printf("add error: GF a is not in GF b\n");
+    }
+
+    return tmp;
 }
 
 
@@ -96,13 +114,19 @@ gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
     Умножение элементов поля
 */
 
-gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b, gf_t *gf) {
-    gf_elem_t res = 0;
-    for (int i = 0; i < gf->power; i++) {
-        if (b & (1 << i)) {
-            res ^= a << i;
-            if (res & gf->mask) {
-                res ^= gf->forming_polinom;
+gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b) {
+    gf_elem_t res = { 0, a.gf };
+
+    if (a.gf != b.gf) {
+        res.gf = 0;
+        printf("mult error: GF a is not in GF b\n");
+    }
+
+    for (int i = 0; i < a.gf->power; i++) {
+        if (b.value & (1 << i)) {
+            res.value ^= a.value << i;
+            if (res.value & a.gf->mask) {
+                res.value ^= a.gf->forming_polinom;
             }
         }
     }
