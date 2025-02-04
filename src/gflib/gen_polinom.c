@@ -2,6 +2,9 @@
 #include "gflib.h"
 #include "polinom.h"
 
+/*
+    Функция для формирования порождающего полинома
+*/
 
 polinom_t* generating_polinom(gf_t *gf, int d, int t) {
     polinom_t *polinom_res = polinom_init(2, gf);

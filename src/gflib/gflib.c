@@ -3,10 +3,11 @@
 #include <stdlib.h>
 
 /*
-    GF(q^m), где q - простое число, m - степень поля
+    GF(q^m), где q - простое число, m - степень поля.
     В данной реализации используется направление
     полиномов от большей к меньше степени,
-    то есть a*x^5 + b*x^4 + c*x^3 + d*x^2 + e*x^1 + f 
+    то есть a*e^5 + b*e^4 + c*e^3 + d*e^2 + f*e^1 + g,
+    где a, b, c, d, f, g принадлежат [0, 1] 
 */
 
 typedef struct gf gf_t;
@@ -32,8 +33,8 @@ struct gf_elem
 
 
 /*
-    Инициализация поля Галуа
-    В текущей реализации q = 2
+    Инициализация поля Галуа.
+    В текущей реализации q = 2.
     Для большей универсальности необходима
     реализация возвредения в целочисленную
     степень.
@@ -50,7 +51,7 @@ gf_t* gf_init(int power) {
 
 
 /*
-    Построение таблицы элементов поля
+    Построение таблицы элементов поля.
     Пример для q = 2, m = 3, forming_polinom = 1011 (x^3 + x + 1)
 
     Получается следующая таблица:
@@ -90,7 +91,7 @@ void gf_build(gf_t *gf, int polinom) {
 
 
 /*
-    Получение элемента поля
+    Получение элемента поля по порядковому номеру.
 */
 
 gf_elem_t gf_get(gf_t *gf, int id) {
@@ -100,12 +101,13 @@ gf_elem_t gf_get(gf_t *gf, int id) {
 
 
 /*
-    Сложение элементов поля
+    Сложение двух элементов поля.
+    Реализации для g_elem_t и g_inner_t.
 */
 
 gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
 
-    gf_elem_t tmp = { a.value ^ b.value, a.gf };
+    gf_elem_t tmp = { gf_add_inner(a.value, b.value), a.gf };
 
     if (a.gf != b.gf) {
         tmp.value = 0;
@@ -122,7 +124,8 @@ gf_inner_t gf_add_inner(gf_inner_t a, gf_inner_t b) {
 
 
 /*
-    Умножение элементов поля
+    Умножение двух элементов поля.
+    Реализации для g_elem_t и g_inner_t.
 */
 
 gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b) {
@@ -133,38 +136,24 @@ gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b) {
         printf("mult error: GF a is not in GF b\n");
     }
 
-    for (int i = 0; i < a.gf->power; i++) {
-        if (b.value & (1 << i)) {
-            res.value ^= a.value << i;
-            if (res.value & a.gf->mask) {
-                res.value ^= a.gf->forming_polinom;
-            }
-        }
-    }
+    int id1 = a.gf->rev_table[a.value];
+    int id2 = a.gf->rev_table[b.value];
+    if (id1 == 0 || id2 == 0) res.value = 0;
+    else res.value = a.gf->table[((id1+id2-2) % (a.gf->total_quantity-1))+1];
+    
     return res;
 }
 
 gf_inner_t gf_mult_inner(gf_inner_t a, gf_inner_t b, gf_t *gf) {
-    // gf_inner_t res = 0;
-
-    // for (int i = 0; i < gf->power; i++) {
-    //     if (b & (1 << i)) {
-    //         res ^= a << i;
-    //         if (res & gf->mask) {
-    //             res ^= gf->forming_polinom;
-    //         }
-    //     }
-    // }
-    // return res;
-
     int id1 = gf->rev_table[a];
     int id2 = gf->rev_table[b];
     if (id1 == 0 || id2 == 0) return 0;
     return gf->table[((id1+id2-2) % (gf->total_quantity-1))+1];
 }
 
+
 /*
-    Печать элементов поля
+    Отображение элементов поля через printf.
 */
 
 void gf_print(gf_t *gf) {
@@ -175,7 +164,7 @@ void gf_print(gf_t *gf) {
 
 
 /*
-    Освобождение поля
+    Очистка памяти, выделенного под поле.
 */
 
 void gf_free(gf_t *gf) {

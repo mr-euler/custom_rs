@@ -9,11 +9,17 @@ typedef struct polinom polinom_t;
 
 struct polinom
 {
-    gf_t *gf;
-    int capacity;
-    int degree;
-    gf_inner_t* data;
+    gf_t *gf;           // поле Галуа (на котором основан)
+    int capacity;       // емкость полинома (количество ячеек памяти для хранения коэффициентов)
+    int degree;         // степень полинома
+    gf_inner_t* data;   // массив коэффициентов полинома
 };
+
+
+/*
+    Инициализация полинома.
+    Можно указать начальную емкость.
+*/
 
 polinom_t* polinom_init(int capacity, gf_t* gf) {
     polinom_t *polinom = malloc(sizeof(polinom_t));
@@ -25,6 +31,16 @@ polinom_t* polinom_init(int capacity, gf_t* gf) {
     return polinom;
 }
 
+
+/*
+    Расширение полинома.
+    Предполагается, что полином можено
+    будет расширить в связи с ограниченностью
+    выделенной памяти.
+    По умолчанию размер полинома всегда
+    увеличивается в двое.
+*/
+
 void polinom_extencion(polinom_t *polinom) {
     gf_inner_t* new_data = calloc(polinom->capacity * 2, sizeof(gf_inner_t));
     memcpy(new_data, polinom->data, polinom->capacity * sizeof(gf_inner_t));
@@ -33,12 +49,24 @@ void polinom_extencion(polinom_t *polinom) {
     polinom->capacity *= 2;
 }
 
+
+/*
+    Метод автоматического подсчета степени полинома.
+*/
+
 void polinom_calc_degree(polinom_t *polinom) {
     polinom->degree = 0;
     for (int i = 0; i < polinom->capacity; i++) {
         if (polinom->data[i] != 0) polinom->degree = i+1;
     }
 }
+
+
+/*
+    Установка значения коэффициента полинома
+    по определенному порядковому номеру.
+    Реализации для g_elem_t и g_inner_t.
+*/
 
 void polinom_set(polinom_t *polinom, int index, gf_elem_t elem) {
     
@@ -68,6 +96,11 @@ void polinom_set_inner(polinom_t *polinom, int index, gf_inner_t elem) {
 }
 
 
+/*
+    Метод для перемножения двух полиномов
+    в установленном поле Галуа.
+*/
+
 polinom_t* polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
     polinom_t *polinom = polinom_init(polinom1->capacity + polinom2->capacity, polinom1->gf);
 
@@ -88,6 +121,10 @@ polinom_t* polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
 }
 
 
+/*
+    Метод для вывода коэффициентов полинома
+    через функцию printf
+*/
 
 void polinom_print(polinom_t *polinom) {
     int is_first = 1;
@@ -100,6 +137,12 @@ void polinom_print(polinom_t *polinom) {
     if (is_first) printf("0");
     printf("\n");
 }
+
+
+/*
+    Метод для освобождения памяти,
+    определенной под полином
+*/
 
 void polinom_free(polinom_t *polinom) {
     free(polinom->data);
