@@ -1,4 +1,4 @@
-void buildGF(int *gf, short int n, int polinom)//
+void buildGF(int *gf, short int n, int polinom)
 {
     for ( int i=1;i<n;i++)
     {

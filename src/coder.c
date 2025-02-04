@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "count_digits.h"
-#include "buildGF.h"
-#include "binaryToDecimal.h"
+
+#include "headers/count_digits.h"
+#include "headers/buildGF.h"
+#include "headers/binaryToDecimal.h"
 
 int main(int args_number, char **args_value) // вводить полином, начиная с младшей стемени. x4+x+1 => ./codec -p 1101
 {

@@ -1,0 +1,1 @@
+void buildGF(int *gf, short int n, int polinom);
