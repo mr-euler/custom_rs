@@ -109,6 +109,10 @@ gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
     return tmp;
 }
 
+gf_inner_t gf_add_inner(gf_inner_t a, gf_inner_t b) {
+    return a ^ b;
+}
+
 
 /*
     Умножение элементов поля
@@ -127,6 +131,20 @@ gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b) {
             res.value ^= a.value << i;
             if (res.value & a.gf->mask) {
                 res.value ^= a.gf->forming_polinom;
+            }
+        }
+    }
+    return res;
+}
+
+gf_inner_t gf_mult_inner(gf_inner_t a, gf_inner_t b, gf_t *gf) {
+    gf_inner_t res = 0;
+
+    for (int i = 0; i < gf->power; i++) {
+        if (b & (1 << i)) {
+            res ^= a << i;
+            if (res & gf->mask) {
+                res ^= gf->forming_polinom;
             }
         }
     }
