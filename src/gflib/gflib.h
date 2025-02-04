@@ -9,7 +9,8 @@ struct gf
     int characteristic;     // q
     int power;              // m
     int total_quantity;     // q^m
-    gf_inner_t *table;       // таблица элементов поля
+    gf_inner_t *table;      // таблица элементов поля
+    gf_inner_t *rev_table;  // обратная таблица элементов поля
     int forming_polinom;    // полином для построения
     int mask;               // маска для mod операции
 };

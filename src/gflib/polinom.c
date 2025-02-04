@@ -36,7 +36,7 @@ void polinom_extencion(polinom_t *polinom) {
 void polinom_calc_degree(polinom_t *polinom) {
     polinom->degree = 0;
     for (int i = 0; i < polinom->capacity; i++) {
-        if (polinom->data[i] != 0) polinom->degree = i;
+        if (polinom->data[i] != 0) polinom->degree = i+1;
     }
 }
 
@@ -95,7 +95,7 @@ void polinom_print(polinom_t *polinom) {
         if (polinom->data[i] == 0) continue;
         if (!is_first) printf(" + ");
         else is_first = 0;
-        printf("%d*x^%d", polinom->data[i], i);
+        printf("e^%d*x^%d", polinom->gf->rev_table[polinom->data[i]]-1, i);
     }
     if (is_first) printf("0");
     printf("\n");
