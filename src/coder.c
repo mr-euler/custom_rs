@@ -64,7 +64,10 @@ int main() {
 
     // Формирование поля Галуа
     gf_t *gf = gf_init(m);
-    gf_build(gf, form_polinom);
+    if(gf_build(gf, form_polinom)) {
+        printf("gf build error: polinom is not primitive\n");
+        return 1;
+    }
     // gf_print(gf); // Отобразим элементы поля Галуа
 
 

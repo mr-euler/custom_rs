@@ -67,9 +67,16 @@ gf_t* gf_init(int power) {
     | 7  |  e^2+1    | 101  |  5   |
 */
 
-void gf_build(gf_t *gf, int polinom) {
+int gf_build(gf_t *gf, int polinom) {
     gf->table = calloc(gf->total_quantity, sizeof(int));
     gf->rev_table = calloc(gf->total_quantity, sizeof(int));
+    
+    // Специальный массив для проверки приводимости полинома
+    gf_inner_t *counter = calloc(gf->total_quantity, sizeof(int));
+    for (int i = 0; i < gf->total_quantity; i++) {
+        counter[i] = 0;
+    }
+
 
     gf->forming_polinom = polinom;
 
@@ -77,16 +84,29 @@ void gf_build(gf_t *gf, int polinom) {
     gf->table[0] = 0;
     gf->table[1] = 1;
 
+    counter[0] = 1;
+    counter[1] = 1;
+
     for (int i = 2; i < gf->total_quantity; i++) {
         gf->table[i] = gf->table[i-1] << 1;
         if(gf->table[i] & gf->mask) {
             gf->table[i] ^= polinom;
+        }
+        
+        counter[gf->table[i]]++;
+        if (counter[gf->table[i]] > 1) {
+            free(gf->table);
+            free(gf->rev_table);
+            free(counter);
+            return 1;
         }
     }
 
     for (int i = 0; i < gf->total_quantity; i++) {
         gf->rev_table[gf->table[i]] = i;
     }
+
+    return 0;
 }
 
 

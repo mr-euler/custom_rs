@@ -22,7 +22,7 @@ struct gf_elem
 };
 
 gf_t* gf_init(int power);
-void gf_build(gf_t *gf, int polinom);
+int gf_build(gf_t *gf, int polinom);
 gf_elem_t gf_get(gf_t *gf, int id);
 gf_elem_t gf_add(gf_elem_t a, gf_elem_t b);
 gf_inner_t gf_add_inner(gf_inner_t a, gf_inner_t b);
