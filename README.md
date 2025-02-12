@@ -10,11 +10,20 @@ make main
 ./main
 ```
 
+```bash
+./build main или ./build 1
+./main
+```
+
 ### Скрипт с кодером
 
 ```bash
 make coder
 ./coder
+```
+```bash
+./build coder или ./build 2
+./main
 ```
 
 ### Удаление исполняемых файлов
