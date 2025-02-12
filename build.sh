@@ -1,7 +1,4 @@
 #!/bin/bash
-[[ -f coder ]] && rm -f coder
-[[ -f main ]] && rm -f main
-
 if  [[ "$1" =~ ^(1|main)$ ]]; then
   app=main
 elif   [[ "$1" =~ ^(2|coder)$ ]]; then
