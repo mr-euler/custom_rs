@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x 
 [[ -f coder ]] && rm -f coder
 [[ -f main ]] && rm -f main
 
