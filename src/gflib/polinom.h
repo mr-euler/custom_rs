@@ -7,7 +7,7 @@ struct polinom
     gf_t *gf;           // поле Галуа (на котором основан)
     int capacity;       // емкость полинома (количество ячеек памяти для хранения коэффициентов)
     int degree;         // степень полинома
-    gf_inner_t* data;   // массив коэффициентов полинома
+    gf_elem_t *data;    // массив коэффициентов полинома
 };
 
 polinom_t* polinom_init(int capacity, gf_t* gf);
