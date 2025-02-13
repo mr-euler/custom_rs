@@ -15,10 +15,8 @@ polinom_t* generating_polinom(gf_t *gf, int b, int t) {
         polinom_set(tmp, 0, gf_get(gf, 1+i));
         polinom_set(tmp, 1, gf_get(gf, 1));
 
-        polinom_t *mult = polinom_mult(polinom_res, tmp);
-        polinom_free(polinom_res);
+        polinom_mult(polinom_res, tmp);
         polinom_free(tmp);
-        polinom_res = mult;
     }
     return polinom_res;
 }
