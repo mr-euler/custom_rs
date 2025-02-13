@@ -21,6 +21,10 @@ make main
 make coder
 ./coder
 ```
+```bash
+./build coder.sh или ./build.sh 2
+./main
+```
 
 ```bash
 ./build.sh coder или ./build.sh 2

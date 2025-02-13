@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -x
 if  [[ "$1" =~ ^(1|main)$ ]]; then
   app=main
 elif   [[ "$1" =~ ^(2|coder)$ ]]; then
@@ -9,7 +10,6 @@ else
   exit
 fi
 
-[[ -f coder ]] && rm -f coder
-[[ -f main ]] && rm -f main
-
-gcc src/gflib/gflib.c src/gflib/polinom.c src/gflib/gen_polinom.c src/main.c -o $app 
+[[ -f $app ]] && rm -f $app
+gcc src/gflib/gflib.c src/gflib/polinom.c src/gflib/gen_polinom.c src/$app.c -o $app 
+>>>>>>> test
