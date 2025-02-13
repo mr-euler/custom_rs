@@ -11,26 +11,18 @@
 */
 
 typedef struct gf gf_t;
-typedef int gf_inner_t;
-typedef struct gf_elem gf_elem_t;
+typedef int gf_elem_t;
 
 struct gf
 {
     int characteristic;     // q
     int power;              // m
     int total_quantity;     // q^m
-    gf_inner_t *table;      // таблица элементов поля
-    gf_inner_t *rev_table;  // обратная таблица элементов поля
+    gf_elem_t *table;      // таблица элементов поля
+    gf_elem_t *rev_table;  // обратная таблица элементов поля
     int forming_polinom;    // полином для построения
     int mask;               // маска для mod операции
 };
-
-struct gf_elem
-{
-    gf_inner_t value;
-    gf_t* gf;
-};
-
 
 /*
     Инициализация поля Галуа.
@@ -72,7 +64,7 @@ int gf_build(gf_t *gf, int polinom) {
     gf->rev_table = calloc(gf->total_quantity, sizeof(int));
     
     // Специальный массив для проверки приводимости полинома
-    gf_inner_t *counter = calloc(gf->total_quantity, sizeof(int));
+    gf_elem_t *counter = calloc(gf->total_quantity, sizeof(int));
     for (int i = 0; i < gf->total_quantity; i++) {
         counter[i] = 0;
     }
@@ -115,8 +107,7 @@ int gf_build(gf_t *gf, int polinom) {
 */
 
 gf_elem_t gf_get(gf_t *gf, int id) {
-    gf_elem_t tmp = { gf->table[id], gf };
-    return tmp;
+    return gf->table[id];
 }
 
 
@@ -126,19 +117,6 @@ gf_elem_t gf_get(gf_t *gf, int id) {
 */
 
 gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
-
-    gf_elem_t tmp = { a.value ^ b.value, a.gf };
-
-    if (a.gf != b.gf) {
-        tmp.value = 0;
-        tmp.gf = 0;
-        printf("add error: GF a is not in GF b\n");
-    }
-
-    return tmp;
-}
-
-gf_inner_t gf_add_inner(gf_inner_t a, gf_inner_t b) {
     return a ^ b;
 }
 
@@ -148,23 +126,7 @@ gf_inner_t gf_add_inner(gf_inner_t a, gf_inner_t b) {
     Реализации для g_elem_t и g_inner_t.
 */
 
-gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b) {
-    gf_elem_t res = { 0, a.gf };
-
-    if (a.gf != b.gf) {
-        res.gf = 0;
-        printf("mult error: GF a is not in GF b\n");
-    }
-
-    int id1 = a.gf->rev_table[a.value];
-    int id2 = a.gf->rev_table[b.value];
-    if (id1 == 0 || id2 == 0) res.value = 0;
-    else res.value = a.gf->table[((id1+id2-2) % (a.gf->total_quantity-1))+1];
-    
-    return res;
-}
-
-gf_inner_t gf_mult_inner(gf_inner_t a, gf_inner_t b, gf_t *gf) {
+gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b, gf_t *gf) {
     int id1 = gf->rev_table[a];
     int id2 = gf->rev_table[b];
     if (id1 == 0 || id2 == 0) return 0;
