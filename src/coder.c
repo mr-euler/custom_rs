@@ -31,7 +31,7 @@ int main() {
 
     // Константы
 
-    int b = 1; // Параметр кодирования
+    int b = 0; // Параметр кодирования
 
     // Динамические параметры
 
@@ -41,7 +41,8 @@ int main() {
     printf("Введите образующий полином в 10-тичной форме.\n");
     printf("Пример: x^3+x+1 => 1011\n");
     printf(">>");
-    scanf("%d", &form_polinom);
+    //scanf("%d", &form_polinom);
+    form_polinom=1011;
     form_polinom = decimal_to_binary(form_polinom); // Преобразование 1011 => 11
     printf("\n"); // Отступ
 
@@ -49,8 +50,10 @@ int main() {
     int k;
     printf("Введите количество информационных символов.\n");
     printf(">>");
-    scanf("%d", &k);
+    //scanf("%d", &k);
+    k=3;
     printf("\n"); // Отступ
+
 
     // Остальные параметры
 
@@ -70,11 +73,64 @@ int main() {
     }
     // gf_print(gf); // Отобразим элементы поля Галуа
 
-
     // Формирование порождающего полинома
     polinom_t *gen_polinom = generating_polinom(gf, b, t);
     printf("Порождающий полином:\n");
     polinom_print(gen_polinom);
+
+
+    int data[]={4,0,3};
+
+    polinom_t *info_poly=polinom_init(k,gf);
+    
+    for(int i=0;i<k;i++)
+    {
+       polinom_set(info_poly, i, gf_get(gf,data[i]+1));
+    }
+
+    polinom_t *encoded=polinom_init(n,gf);
+    //мы здесь
+
+    int coded[n];
+    int temp_array[n];
+    for (int i=0;i<n;i++) coded[i]=0;
+    for (int i=0;i<n;i++) temp_array[i]=0;
+
+    for (int i=n-1;i>=n-k;i--) coded[i]=data[(n-i-1)];
+
+
+  // for(int i=0;i < n;i++) printf("data%d = %d\n",i,coded[i]);
+
+   printf("\n"); // Отступ
+
+   for(int i=0;i < gen_polinom->degree;i++)
+   {
+       printf("gen_poly%d = %d\n",i,gf->rev_table[gen_polinom->data[i]]-1);
+   }
+
+    int index=n-1;
+
+    int value;
+    int temp[n];
+    for(int i=0;i < n;i++) temp[i]=coded[i];
+    for(int i=0;i < n;i++) printf("temp%d = %d\n",i,temp[i]);
+    printf("\n"); // Отступ
+    while(index>=gen_polinom->degree)
+    {
+        value=temp[index];
+        printf("value = %d\n",value);
+        int temp_devision[index-1]; 
+        for(int i=0;i<index-1;i++)
+        {
+            temp_devision[i]=gf_add(gf_mult(gen_polinom->data[i], gf_get(gf,value+1),gf),temp[i]);
+            //temp_devision[i]=gf->rev_table[gf->table[(gf->rev_table[gen_polinom->data[i]]-1+value-2) % (gf->total_quantity-1)+1]^gf->table[temp[i]]]-1;
+            //printf("i=%d, poly=%d\n",i,gf->rev_table[gen_polinom->data[i]]-1+value-2);
+            printf("res_%d = %d\n",i,gf->rev_table[temp_devision[i]]-1);
+        }
+        index=0;
+    }
+    printf("\n"); // Отступ
+
 
 
     // Освобождение памяти, выделенной под данные
