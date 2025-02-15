@@ -79,56 +79,47 @@ int main() {
     polinom_print(gen_polinom);
 
 
-    int data[]={4,0,3};
+    int data[]={4,-1,3};
 
     polinom_t *info_poly=polinom_init(k,gf);
-    
     for(int i=0;i<k;i++)
     {
        polinom_set(info_poly, i, gf_get(gf,data[i]+1));
     }
 
     polinom_t *encoded=polinom_init(n,gf);
-    //мы здесь
-
-    int coded[n];
-    int temp_array[n];
-    for (int i=0;i<n;i++) coded[i]=0;
-    for (int i=0;i<n;i++) temp_array[i]=0;
-
-    for (int i=n-1;i>=n-k;i--) coded[i]=data[(n-i-1)];
-
-
-  // for(int i=0;i < n;i++) printf("data%d = %d\n",i,coded[i]);
-
-   printf("\n"); // Отступ
-
-   for(int i=0;i < gen_polinom->degree;i++)
-   {
-       printf("gen_poly%d = %d\n",i,gf->rev_table[gen_polinom->data[i]]-1);
-   }
-
-    int index=n-1;
-
-    int value;
-    int temp[n];
-    for(int i=0;i < n;i++) temp[i]=coded[i];
-    for(int i=0;i < n;i++) printf("temp%d = %d\n",i,temp[i]);
-    printf("\n"); // Отступ
-    while(index>=gen_polinom->degree)
+    for(int i=k+1;i<n;i++)
     {
-        value=temp[index];
-        printf("value = %d\n",value);
-        int temp_devision[index-1]; 
-        for(int i=0;i<index-1;i++)
-        {
-            temp_devision[i]=gf_add(gf_mult(gen_polinom->data[i], gf_get(gf,value+1),gf),temp[i]);
-            //temp_devision[i]=gf->rev_table[gf->table[(gf->rev_table[gen_polinom->data[i]]-1+value-2) % (gf->total_quantity-1)+1]^gf->table[temp[i]]]-1;
-            //printf("i=%d, poly=%d\n",i,gf->rev_table[gen_polinom->data[i]]-1+value-2);
-            printf("res_%d = %d\n",i,gf->rev_table[temp_devision[i]]-1);
-        }
-        index=0;
+       polinom_set(encoded, i, info_poly->data[i-k-1]);
     }
+
+    printf("degree=%d\n\n",gen_polinom->degree);
+
+    int temp_array[n]; // массив для хранения остатков от деления
+    for (int i=0;i<n;i++) temp_array[i]=encoded->data[i];
+
+    int index=n-1; // контролируем старшую степень делимого
+    int value=temp_array[index];
+
+    while(index>=gen_polinom->degree-1) // до тех пор пока степень делимого не будет равна степени генераторного полинова, включая её
+    {  
+        int temp_devision[index];// результат деления. Каждую итерацию размер уменьшается на 1.
+        //for (int i=0;i<index;i++) temp_devision[i]=-1;
+        // for(int i=index-1;i>=0;i--)
+        for(int i=0;i<index;i++)
+        {
+            // умножаем ген. полином на элемент при старшей степени и складываем его с делимым/остатком
+            temp_devision[i]=gf_add(gf_mult(gen_polinom->data[i-(index-gen_polinom->degree+1)],value,gf),temp_array[i]);
+            // формируем новый дилитель
+            temp_array[i]=temp_devision[i];
+        }
+        //for(int i=0;i<index;i++) temp_array[i]=temp_devision[i];
+        index--;
+        value=temp_array[index];
+    }
+
+    for(int i=0;i<r;i++) encoded->data[i]=temp_array[i];
+    for(int i=0;i < n;i++) printf("encoded%d = %d\n",i,gf->rev_table[encoded->data[i]]-1);
     printf("\n"); // Отступ
 
 
