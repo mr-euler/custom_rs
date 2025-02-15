@@ -103,11 +103,27 @@ int gf_build(gf_t *gf, int polinom) {
 
 
 /*
-    Получение элемента поля по порядковому номеру.
+    Получение элемента поля по порядковому номеру примитивного элемента.
 */
 
-gf_elem_t gf_get(gf_t *gf, int id) {
-    return gf->table[id];
+gf_elem_t gf_get_by_id(gf_t *gf, int id) {
+    if (id < 0) {
+        printf("gf get error: invalid index {%d}", id);
+        return 0;
+    }
+    return gf->table[id % gf->total_quantity];
+}
+
+/*
+    Получение элемента поля по степени примитивного элемента.
+*/
+
+gf_elem_t gf_get_by_degree(gf_t *gf, int degree) {
+    if (degree < 0) {
+        printf("gf get degree error: invalid index {%d}", degree);
+        return 1;
+    }
+    return gf->table[(degree % (gf->total_quantity-1))+1];
 }
 
 
@@ -126,7 +142,7 @@ gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
     Реализации для g_elem_t и g_inner_t.
 */
 
-gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b, gf_t *gf) {
+gf_elem_t gf_mult(gf_t *gf, gf_elem_t a, gf_elem_t b) {
     int id1 = gf->rev_table[a];
     int id2 = gf->rev_table[b];
     if (id1 == 0 || id2 == 0) return 0;

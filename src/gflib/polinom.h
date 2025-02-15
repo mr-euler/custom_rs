@@ -10,7 +10,7 @@ struct polinom
     gf_elem_t *data;    // массив коэффициентов полинома
 };
 
-polinom_t* polinom_init(int capacity, gf_t* gf);
+polinom_t* polinom_init(gf_t* gf, int capacity);
 void polinom_extencion(polinom_t *polinom, int size);
 void polinom_calc_degree(polinom_t *polinom);
 void polinom_set(polinom_t *polinom, int index, gf_elem_t elem);

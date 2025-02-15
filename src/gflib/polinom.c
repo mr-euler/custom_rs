@@ -21,7 +21,7 @@ struct polinom
     Можно указать начальную емкость.
 */
 
-polinom_t* polinom_init(int capacity, gf_t* gf) {
+polinom_t* polinom_init(gf_t* gf, int capacity) {
     polinom_t *polinom = malloc(sizeof(polinom_t));
     polinom->gf = gf;
     polinom->capacity = capacity;
@@ -88,7 +88,7 @@ void polinom_set(polinom_t *polinom, int index, gf_elem_t elem) {
 */
 
 void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
-    polinom_t *polinom = polinom_init(polinom1->capacity + polinom2->capacity, polinom1->gf);
+    polinom_t *polinom = polinom_init(polinom1->gf, polinom1->capacity + polinom2->capacity);
     // TODO: заменить capacity на degree
 
     if (polinom1->gf != polinom2->gf) {
@@ -98,7 +98,7 @@ void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
 
     for (int i = 0; i < polinom1->degree; i++) {
         for (int j = 0; j < polinom2->degree; j++) {
-            gf_elem_t mult = gf_mult(polinom1->data[i], polinom2->data[j], polinom1->gf);
+            gf_elem_t mult = gf_mult(polinom1->gf, polinom1->data[i], polinom2->data[j]);
             polinom_set(polinom, i+j, gf_add(polinom->data[i+j], mult));
         }
     }
@@ -119,7 +119,7 @@ void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
 */
 
 polinom_t* polinom_copy(polinom_t *polinom1) {
-    polinom_t *polinom = polinom_init(polinom1->capacity, polinom1->gf);
+    polinom_t *polinom = polinom_init(polinom1->gf, polinom1->capacity);
     for (int i = 0; i < polinom1->degree; i++) {
         polinom_set(polinom, i, polinom1->data[i]);
     }
