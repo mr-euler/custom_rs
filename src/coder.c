@@ -31,7 +31,7 @@ int main() {
 
     // Константы
 
-    int b = 1; // Параметр кодирования
+    int b = 0; // Параметр кодирования
 
     // Динамические параметры
 
@@ -43,7 +43,7 @@ int main() {
     printf(">>");
     //scanf("%d", &form_polinom);
     //form_polinom=1011;
-    form_polinom=10011;
+    form_polinom=1011;
     form_polinom = decimal_to_binary(form_polinom); // Преобразование 1011 => 11
     printf("\n"); // Отступ
 
@@ -52,8 +52,8 @@ int main() {
     printf("Введите количество информационных символов.\n");
     printf(">>");
     //scanf("%d", &k);
-    //k=3;
-    k=9;
+    k=3;
+    //k=9;
     printf("\n"); // Отступ
 
 
@@ -81,8 +81,8 @@ int main() {
     polinom_print(gen_polinom);
 
 
-    int data[]={12,2,8,1,4,5,10,10,4};
-    //int data[]={4,-1,3};
+    //int data[]={12,2,8,1,4,5,10,10,4};
+    int data[]={4,-1,3};
     polinom_t *info_poly=polinom_init(k,gf);
     for(int i=0;i<k;i++)
     {
@@ -129,6 +129,12 @@ int main() {
     printf("\n"); // Отступ
 
     for (int i=0;i<n;i++) temp_array[i]=encoded->data[i];
+    
+    //temp_array[0]=gf_get(gf,2+1); // Раскоментировать, чтобы получился полином Владимирова. Результат проверен, сходится с листочком.
+    //temp_array[1]=gf_get(gf,2+1);
+    //temp_array[2]=gf_get(gf,1+1);
+    //temp_array[3]=gf_get(gf,4+1);
+    
     index=n-1; // контролируем старшую степень делимого
     value=temp_array[index];
     while(index>=gen_polinom->degree-1) // до тех пор пока степень делимого не будет равна степени генераторного полинова, включая её
@@ -148,7 +154,9 @@ int main() {
         value=temp_array[index];
         
     }
-    for(int i=0;i<index;i++) printf("CHECK%d = %d\n",i,gf->rev_table[temp_array[i]]-1);
+
+
+    for(int i=0;i<r;i++) printf("CHECK%d = %d\n",i,gf->rev_table[temp_array[i]]-1);
 
     // Освобождение памяти, выделенной под данные
     polinom_free(gen_polinom);
