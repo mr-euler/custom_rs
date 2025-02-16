@@ -181,12 +181,44 @@ gf_elem_t gf_div(gf_t *gf, gf_elem_t a, gf_elem_t b) {
 
 
 /*
+    Отображение эламента поля в двоичном виде
+*/
+
+void gf_elem_print(gf_t *gf, gf_elem_t elem) {
+    int mask = 1 << (gf->power-1);
+    for (int i = 0; i < gf->power; i++) {
+        printf("%d", (elem & mask) >> (gf->power-1));
+        elem <<= 1;
+    }
+}
+
+
+/*
     Отображение элементов поля через printf.
 */
 
 void gf_print(gf_t *gf) {
-    for (int i = 0; i < gf->total_quantity; i++) {
-        printf("%d: %d\n", i-1, gf->table[i]);
+    printf(" id   | degree | element\n");
+    printf(" 0    | -      | %-4d\n", gf->table[0]);
+    for (int i = 1; i < gf->total_quantity; i++) {
+        printf(" %-4d | %-6d | %-4d\n", i, i-1, gf->table[i]);
+    }
+}
+
+
+/*
+    Отображение элементов поля через printf в бинарном виде
+*/
+
+void gf_print_bin(gf_t *gf) {
+    printf(" id   | degree | element\n");
+    printf(" 0    | -      | 0b");
+    gf_elem_print(gf, gf->table[0]);
+    printf("\n");
+    for (int i = 1; i < gf->total_quantity; i++) {
+        printf(" %-4d | %-6d | 0b", i, i-1);
+        gf_elem_print(gf, gf->table[i]);
+        printf("\n");
     }
 }
 
