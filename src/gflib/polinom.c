@@ -33,6 +33,17 @@ polinom_t* polinom_init(gf_t* gf, int capacity) {
 
 
 /*
+    Метод для освобождения памяти,
+    определенной под полином
+*/
+
+void polinom_free(polinom_t *polinom) {
+    free(polinom->data);
+    free(polinom);
+}
+
+
+/*
     Расширение полинома.
     Предполагается, что полином можно
     будет расширить в связи с ограниченностью
@@ -109,8 +120,7 @@ void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
         polinom_set(polinom1, i, polinom->data[i]);
     }
 
-    free(polinom->data);
-    free(polinom);
+    polinom_free(polinom);
 }
 
 
@@ -142,15 +152,4 @@ void polinom_print(polinom_t *polinom) {
     }
     if (is_first) printf("0");
     printf("\n");
-}
-
-
-/*
-    Метод для освобождения памяти,
-    определенной под полином
-*/
-
-void polinom_free(polinom_t *polinom) {
-    free(polinom->data);
-    free(polinom);
 }
