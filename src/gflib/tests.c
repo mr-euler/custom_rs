@@ -52,6 +52,7 @@ int test3() {
     gf_elem_t b = gf_get_by_degree(gf, 5);
     gf_elem_t c = gf_add(a, b);
     gf_elem_t d = gf_mult(gf, a, b);
+    gf_elem_t e = gf_pow(gf, a, 20);
 
     if (c != gf_get_by_degree(gf, 0)) {
         printf("gf add error: %d + %d != %d\n", a, b, c);
@@ -59,7 +60,12 @@ int test3() {
     }
 
     if (d != gf_get_by_degree(gf, 9)) {
-        printf("gf mult error: %d * %d != %d\n", a, b, c);
+        printf("gf mult error: %d * %d != %d\n", a, b, d);
+        return 1;
+    }
+
+     if (e != gf_get_by_degree(gf, 3)) {
+        printf("gf pow error: %d^%d != %d\n", a, 20, e);
         return 1;
     }
 

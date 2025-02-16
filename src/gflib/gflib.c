@@ -151,6 +151,16 @@ gf_elem_t gf_mult(gf_t *gf, gf_elem_t a, gf_elem_t b) {
 
 
 /*
+    Возведение элемента поля в степень.
+*/
+
+gf_elem_t gf_pow(gf_t *gf, gf_elem_t elem, int degree) {
+    if (elem == 0) return 0;
+    return gf->table[(( (gf->rev_table[elem]-1) * degree ) % ( gf->total_quantity-1))+1];
+}
+
+
+/*
     Отображение элементов поля через printf.
 */
 
