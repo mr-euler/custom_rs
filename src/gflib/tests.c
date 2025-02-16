@@ -151,7 +151,55 @@ int test5() {
     while (i < polinom->capacity && polinom->data[i] == 0) i++;
 
     if (i != size*4) {
-        printf("\t\tpolinom extension error: wrong data\n");
+        printf("\t\tpolinom extension error: did not found end of capacity\n");
+        return 1;
+    }
+
+    polinom_free(polinom);
+    gf_free(gf);
+    return 0;
+}
+
+int test6() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    // Инициализация полинома
+    polinom_t *polinom = polinom_init(gf, 10);
+
+    if (polinom->degree != 0) {
+        printf("\t\tpolinom degree error: degree != 0\n");
+        return 1;
+    }
+
+    polinom->data[1] = 1;
+    polinom_calc_degree(polinom);
+
+    if (polinom->degree != 2) {
+        printf("\t\tpolinom degree error: degree != 2\n");
+        return 1;
+    }
+
+    polinom->data[1] = 0;
+    polinom->data[2] = 1;
+    polinom->data[5] = 1;
+    polinom_calc_degree(polinom);
+
+    if (polinom->degree != 6) {
+        printf("\t\tpolinom degree error: degree != 6\n");
+        return 1;
+    }
+
+    polinom->data[5] = 0;
+    polinom_calc_degree(polinom);
+
+    if (polinom->degree != 3) {
+        printf("\t\tpolinom degree error: degree != 3\n");
         return 1;
     }
 
@@ -203,6 +251,14 @@ int main() {
     // Тест 5: проверка полинома на корректную инициализацию и расширение
     printf("\ttest 5: проверка полинома на корректную инициализацию и расширение\n");
     if (test5()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 6: проверка функции отсчета степени полинома
+    printf("\ttest 6: проверка функции отсчета степени полинома\n");
+    if (test6()) {
         printf("\t\tне пройден\n");
         return 1;
     }
