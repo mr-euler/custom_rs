@@ -119,6 +119,47 @@ int test4() {
     return 0;
 }
 
+int test5() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    // Инициализация полинома
+    int size = 10;
+    polinom_t *polinom = polinom_init(gf, size);
+    polinom->data[size-1] = 1;
+    polinom_extencion(polinom, size*3);
+
+    if (polinom->capacity != size*4) {
+        printf("\t\tpolinom extension error: capacity != %d\n", size*4);
+        return 1;
+    }
+
+    int i = 0;
+    while (i < polinom->capacity && polinom->data[i] == 0) i++;
+
+    if (i != size-1) {
+        printf("\t\tpolinom extension error: did not found '1' in data\n");
+        return 1;
+    }
+
+    i++;
+    while (i < polinom->capacity && polinom->data[i] == 0) i++;
+
+    if (i != size*4) {
+        printf("\t\tpolinom extension error: wrong data\n");
+        return 1;
+    }
+
+    polinom_free(polinom);
+    gf_free(gf);
+    return 0;
+}
+
 int main() {
 
     printf("Тестирование gflib\n");
@@ -156,6 +197,16 @@ int main() {
     printf("\t\tпройден\n");
 
     printf("\n");
+
+    printf("Тестирование polinom\n");
+
+    // Тест 5: проверка полинома на корректную инициализацию и расширение
+    printf("\ttest 5: проверка полинома на корректную инициализацию и расширение\n");
+    if (test5()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
 
     return 0;
 }

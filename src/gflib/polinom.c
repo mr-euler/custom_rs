@@ -53,11 +53,13 @@ void polinom_free(polinom_t *polinom) {
 */
 
 void polinom_extencion(polinom_t *polinom, int size) {
+    int old_size = polinom->capacity;
     gf_elem_t* new_data = calloc(polinom->capacity + size, sizeof(gf_elem_t));
     memcpy(new_data, polinom->data, polinom->capacity * sizeof(gf_elem_t));
     free(polinom->data);
     polinom->data = new_data;
     polinom->capacity += size;
+    for (int i = old_size; i < polinom->capacity; i++) polinom->data[i] = 0;
 }
 
 
