@@ -48,6 +48,33 @@ int test3() {
         return 1;
     }
 
+    gf_elem_t a = gf_get_by_degree(gf, 4);
+    gf_elem_t b = gf_get_by_id(gf, 5);
+    gf_elem_t c = gf_get_by_id(gf, 0);
+
+    if (a != b) {
+        printf("\t\tgf get error: %d != %d\n", a, b);
+        return 1;
+    }
+
+    if (c != 0) {
+        printf("\t\tgf get error: %d != 0\n", c);
+        return 1;
+    }
+
+    gf_free(gf);
+    return 0;
+}
+
+int test4() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
     // Сложение, умножение и возведение в степень
     gf_elem_t a = gf_get_by_degree(gf, 4);
     gf_elem_t b = gf_get_by_degree(gf, 5);
@@ -112,9 +139,17 @@ int main() {
     }
     printf("\t\tпройден\n");
 
-    // Тест 3: операции с элементами поля Галуа
-    printf("\ttest 3: операции с элементами поля Галуа\n");
+    // Тест 3: получение элементов поля Галуа
+    printf("\ttest 3: получение элементов поля Галуа\n");
     if (test3()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 4: операции с элементами поля Галуа
+    printf("\ttest 4: операции с элементами поля Галуа\n");
+    if (test4()) {
         printf("\t\tне пройден\n");
         return 1;
     }
