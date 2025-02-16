@@ -20,7 +20,7 @@ int test2() {
     int form_polinom = 0b1011; // x^3 + x + 1
     gf_t *gf = gf_init(m);
     if(gf_build(gf, form_polinom)) {
-        printf("gf build error: полином не является неприводимый\n");
+        printf("\t\tgf build error: полином не является неприводимый\n");
         return 1;
     }
 
@@ -28,9 +28,9 @@ int test2() {
     int length = sizeof(data) / sizeof(data[0]);
     for (int i = 0; i < length; i++) {
         if (data[i] != gf->table[i]) {
-            printf("gf build error: расхождение при построении поля Галуа\n" \
-                "real[%d] == %d\n" \
-                "gf->table[%d] == %d\n",
+            printf("\t\tgf build error: расхождение при построении поля Галуа\n" \
+                "\t\treal[%d] == %d\n" \
+                "\t\tgf->table[%d] == %d\n",
                 i, data[i], i, gf->table[i]);
             return 1;
         }
@@ -44,10 +44,11 @@ int test3() {
     int form_polinom = 0b1011; // x^3 + x + 1
     gf_t *gf = gf_init(m);
     if(gf_build(gf, form_polinom)) {
-        printf("gf build error: полином не является неприводимый\n");
+        printf("\t\tgf build error: полином не является неприводимый\n");
         return 1;
     }
 
+    // Сложение, умножение и возведение в степень
     gf_elem_t a = gf_get_by_degree(gf, 4);
     gf_elem_t b = gf_get_by_degree(gf, 5);
     gf_elem_t c = gf_add(a, b);
@@ -55,19 +56,37 @@ int test3() {
     gf_elem_t e = gf_pow(gf, a, 20);
 
     if (c != gf_get_by_degree(gf, 0)) {
-        printf("gf add error: %d + %d != %d\n", a, b, c);
+        printf("\t\tgf add error: %d + %d != %d\n", a, b, c);
         return 1;
     }
 
     if (d != gf_get_by_degree(gf, 9)) {
-        printf("gf mult error: %d * %d != %d\n", a, b, d);
+        printf("\t\tgf mult error: %d * %d != %d\n", a, b, d);
         return 1;
     }
 
      if (e != gf_get_by_degree(gf, 3)) {
-        printf("gf pow error: %d^%d != %d\n", a, 20, e);
+        printf("\t\tgf pow error: %d^%d != %d\n", a, 20, e);
         return 1;
     }
+
+    // Деление
+    a = gf_get_by_degree(gf, 0);
+    b = gf_get_by_degree(gf, 3);
+    c = gf_get_by_degree(gf, 5);
+    d = gf_div(gf, a, b);
+    e = gf_div(gf, c, b);
+
+    if (d != gf_get_by_degree(gf, 3)) {
+        printf("\t\tgf div error (no carry): %d / %d != %d\n", a, b, d);
+        return 1;
+    }
+
+    if (e != gf_get_by_degree(gf, 5)) {
+        printf("\t\tgf div error (with carry): %d / %d != %d\n", b, c, e);
+        return 1;
+    }
+
 
     gf_free(gf);
     return 0;

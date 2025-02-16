@@ -161,6 +161,26 @@ gf_elem_t gf_pow(gf_t *gf, gf_elem_t elem, int degree) {
 
 
 /*
+    Нахождение такого элемента поля,
+    который нужно умножить на первый
+    аргумент, чтобы получить второй.
+    (деление)
+*/
+
+gf_elem_t gf_div(gf_t *gf, gf_elem_t a, gf_elem_t b) {
+    if (a == 0 && b == 0) return 0;
+    if (a == 0 || b == 0) {
+        printf("gf div error: invalid args\n");
+        return 0;
+    }
+    int elem_a_degree = gf->rev_table[a]-1;
+    int elem_b_degree = gf->rev_table[b]-1;
+    if (elem_b_degree >= elem_a_degree) return gf->table[elem_a_degree + elem_b_degree + 1];
+    else return gf->table[(gf->total_quantity-1) - elem_a_degree + elem_b_degree + 1];
+}
+
+
+/*
     Отображение элементов поля через printf.
 */
 
