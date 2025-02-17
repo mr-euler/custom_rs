@@ -150,7 +150,7 @@ void polinom_add(polinom_t *polinom1, polinom_t *polinom2) {
 */
 
 void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
-    polinom_t *polinom = polinom_init(polinom1->gf, polinom1->degree + polinom2->degree);
+    polinom_t *polinom = polinom_init(polinom1->gf, polinom1->degree + polinom2->degree - 1);
     // TODO: заменить capacity на degree
 
     if (polinom1->gf != polinom2->gf) {
@@ -165,13 +165,11 @@ void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
         }
     }
 
-    if (polinom->degree > polinom1->degree) polinom_extencion(polinom1, polinom->degree - polinom1->degree);
-
-    for (int i = 0; i < polinom->degree; i++) {
-        polinom_set(polinom1, i, polinom->data[i]);
-    }
-
-    polinom_free(polinom);
+    polinom1->capacity = polinom->capacity;
+    polinom1->degree = polinom->degree;
+    free(polinom1->data);
+    polinom1->data = polinom->data;
+    free(polinom);
 }
 
 
