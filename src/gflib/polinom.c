@@ -211,7 +211,8 @@ gf_elem_t polinom_call(polinom_t *polinom, gf_elem_t elem) {
 polinom_t* polinom_copy(polinom_t *polinom1) {
     polinom_t *polinom = polinom_init(polinom1->gf, polinom1->capacity);
     for (int i = 0; i < polinom1->degree; i++) {
-        polinom_set(polinom, i, polinom1->data[i]);
+        if (polinom1->data[i])
+            polinom_set(polinom, i, polinom1->data[i]);
     }
     return polinom;
 }

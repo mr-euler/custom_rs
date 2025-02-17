@@ -440,6 +440,50 @@ int test11() {
     return 0;
 }
 
+int test12() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    polinom_t *polinom1 = polinom_init(gf, 1);
+    gf_elem_t data1[] = {
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 2),
+    };
+    polinom_append(polinom1, data1, sizeof(data1)/sizeof(data1[0]));
+
+    polinom_t *polinom2 = polinom_copy(polinom1);
+
+    if (polinom1->capacity != polinom2->capacity) {
+        printf("\t\tpolinom copy error: wrong capacity\n");
+        return 1;
+    }
+
+    if (polinom1->degree != polinom2->degree) {
+        printf("\t\tpolinom copy error: wrong degree\n");
+        return 1;
+    }
+
+    for (int i = 0; i < polinom1->degree; i++) {
+        if (data1[i] != polinom1->data[i]) {
+            printf("\t\tpolinom copy error: wrong element (%d != %d)\n", data1[i], polinom1->data[i]);
+        return 1;
+        }
+    }
+    
+
+    polinom_free(polinom1);
+    polinom_free(polinom2);
+    gf_free(gf);
+    return 0;
+}
+
 int main() {
 
     printf("Тестирование gflib\n");
@@ -531,6 +575,14 @@ int main() {
     // Тест 11: проверка фукнции polinom_call
     printf("\ttest 11: проверка фукнции polinom_call\n");
     if (test11()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 12: проверка фукнции polinom_copy
+    printf("\ttest 12: проверка фукнции polinom_copy\n");
+    if (test12()) {
         printf("\t\tне пройден\n");
         return 1;
     }
