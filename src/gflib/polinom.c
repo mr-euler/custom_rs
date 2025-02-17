@@ -209,12 +209,24 @@ gf_elem_t polinom_call(polinom_t *polinom, gf_elem_t elem) {
 */
 
 polinom_t* polinom_copy(polinom_t *polinom1) {
-    polinom_t *polinom = polinom_init(polinom1->gf, polinom1->capacity);
+    polinom_t *polinom2 = polinom_init(polinom1->gf, polinom1->capacity);
     for (int i = 0; i < polinom1->degree; i++) {
         if (polinom1->data[i])
-            polinom_set(polinom, i, polinom1->data[i]);
+            polinom_set(polinom2, i, polinom1->data[i]);
     }
-    return polinom;
+    return polinom2;
+}
+
+
+/*
+    Метод для очистки полинома
+*/
+
+void polinom_clear(polinom_t *polinom) {
+    for (int i = 0; i < polinom->capacity; i++) {
+        polinom->data[i] = 0;
+    }
+    polinom->degree = 0;
 }
 
 
