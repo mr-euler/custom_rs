@@ -252,6 +252,111 @@ int test7() {
     return 0;
 }
 
+int test8() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    // Инициализация полинома
+    polinom_t *polinom = polinom_init(gf, 1);
+    gf_elem_t data[] = {
+        gf_get_by_degree(gf, 0),
+        gf_get_by_degree(gf, 1),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 4),
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 6),
+    };
+    polinom_append(polinom, data, sizeof(data)/sizeof(data[0]));
+    
+    if (polinom->degree != 7 && polinom->capacity != 7) {
+        printf("\t\tpolinom append error: polinom did not extended correctly\n");
+        return 1;
+    }
+
+    for (int i = 0; i < polinom->degree; i++) {
+        if (data[i] != polinom->data[i]) {
+            printf("\t\tpolinom append error: append does not correct (%d != %d)\n", data[i], polinom->data[i]);
+            return 1;
+        }
+    }
+
+    polinom_free(polinom);
+    gf_free(gf);
+    return 0;
+}
+
+int test9() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    polinom_t *polinom1 = polinom_init(gf, 1);
+    gf_elem_t data1[] = {
+        gf_get_by_degree(gf, 0),
+        gf_get_by_degree(gf, 1),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 4),
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 6),
+    };
+    polinom_append(polinom1, data1, sizeof(data1)/sizeof(data1[0]));
+
+    polinom_t *polinom2 = polinom_init(gf, 1);
+    gf_elem_t data2[] = {
+        gf_get_by_degree(gf, 6),
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 4),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 1),
+        gf_get_by_degree(gf, 0),
+        gf_get_by_degree(gf, 3)
+    };
+    polinom_append(polinom2, data2, sizeof(data2)/sizeof(data2[0]));
+
+    polinom_add(polinom1, polinom2);
+    polinom_free(polinom2);
+    
+    gf_elem_t data3[] = {
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 6),
+        gf_get_by_degree(gf, 1),
+        0,
+        gf_get_by_degree(gf, 1),
+        gf_get_by_degree(gf, 6),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 3),
+    };
+
+    if (polinom1->degree != 8 && polinom1->capacity != 8) {
+        printf("\t\tpolinom add error: polinom did not extended correctly\n");
+        return 1;
+    }
+
+    for (int i = 0; i < polinom1->degree; i++) {
+        if (data3[i] != polinom1->data[i]) {
+            printf("\t\tpolinom add error: append does not correct (%d != %d)\n", data3[i], polinom1->data[i]);
+            return 1;
+        }
+    }
+    
+
+    polinom_free(polinom1);
+    gf_free(gf);
+    return 0;
+}
+
 int main() {
 
     printf("Тестирование gflib\n");
@@ -311,6 +416,22 @@ int main() {
     // Тест 7: проверка фукнции polinom_set
     printf("\ttest 7: проверка фукнции polinom_set\n");
     if (test7()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 8: проверка фукнции polinom_append
+    printf("\ttest 8: проверка фукнции polinom_append\n");
+    if (test8()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 9: проверка фукнции polinom_add
+    printf("\ttest 9: проверка фукнции polinom_add\n");
+    if (test9()) {
         printf("\t\tне пройден\n");
         return 1;
     }

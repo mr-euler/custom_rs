@@ -22,6 +22,12 @@ struct polinom
 */
 
 polinom_t* polinom_init(gf_t* gf, int capacity) {
+
+    if (capacity < 1) {
+        printf("polinom init warning: capacity < 1\n");
+        capacity = 1;
+    }
+
     polinom_t *polinom = malloc(sizeof(polinom_t));
     polinom->gf = gf;
     polinom->capacity = capacity;
@@ -92,6 +98,49 @@ void polinom_set(polinom_t *polinom, int index, gf_elem_t elem) {
     polinom->data[index] = elem;
     if (polinom->degree <= index) polinom->degree = index+1;
     if (elem == 0 && index < polinom->degree) polinom_calc_degree(polinom);
+}
+
+
+/*
+    Метод для добалвения множества коэффициентов
+*/
+
+void polinom_append(polinom_t *polinom, int arr[], int size) {
+    if (polinom->capacity < size) polinom_extencion(polinom, size - polinom->capacity);
+    for (int i = 0; i < size; i++) {
+        if (!arr[i]) continue;
+        polinom_set(polinom, i, arr[i]);
+    }
+}
+
+
+/*
+    Метод для сложение полиномов
+    Результат сложения записывается
+    в первый переданный полином
+*/
+
+void polinom_add(polinom_t *polinom1, polinom_t *polinom2) {
+    if (polinom1->gf != polinom2->gf) {
+        printf("polinom add error: polinoms are not in same GF\n");
+        return;
+    }
+
+    int i = 0;
+    while (i < polinom1->degree && i < polinom2->degree) {
+        polinom_set(polinom1, i, gf_add(polinom1->data[i], polinom2->data[i]));
+        i++;
+    }
+
+    if (i < polinom1->degree) return;
+    if (i < polinom2->degree) {
+        if (polinom1->capacity < polinom2->degree)
+            polinom_extencion(polinom1, polinom2->degree - polinom1->capacity);
+        while (i < polinom2->degree) {
+            polinom_set(polinom1, i, polinom2->data[i]);
+            i++;
+        }
+    }
 }
 
 
