@@ -103,11 +103,27 @@ int gf_build(gf_t *gf, int polinom) {
 
 
 /*
-    Получение элемента поля по порядковому номеру.
+    Получение элемента поля по порядковому номеру примитивного элемента.
 */
 
-gf_elem_t gf_get(gf_t *gf, int id) {
-    return gf->table[id];
+gf_elem_t gf_get_by_id(gf_t *gf, int id) {
+    if (id < 0) {
+        printf("gf get error: invalid index {%d}", id);
+        return 0;
+    }
+    return gf->table[id % gf->total_quantity];
+}
+
+/*
+    Получение элемента поля по степени примитивного элемента.
+*/
+
+gf_elem_t gf_get_by_degree(gf_t *gf, int degree) {
+    if (degree < 0) {
+        printf("gf get degree error: invalid index {%d}", degree);
+        return 1;
+    }
+    return gf->table[(degree % (gf->total_quantity-1))+1];
 }
 
 
@@ -126,7 +142,7 @@ gf_elem_t gf_add(gf_elem_t a, gf_elem_t b) {
     Реализации для g_elem_t и g_inner_t.
 */
 
-gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b, gf_t *gf) {
+gf_elem_t gf_mult(gf_t *gf, gf_elem_t a, gf_elem_t b) {
     int id1 = gf->rev_table[a];
     int id2 = gf->rev_table[b];
     if (id1 == 0 || id2 == 0) return 0;
@@ -135,12 +151,74 @@ gf_elem_t gf_mult(gf_elem_t a, gf_elem_t b, gf_t *gf) {
 
 
 /*
+    Возведение элемента поля в степень.
+*/
+
+gf_elem_t gf_pow(gf_t *gf, gf_elem_t elem, int degree) {
+    if (elem == 0) return 0;
+    return gf->table[(( (gf->rev_table[elem]-1) * degree ) % ( gf->total_quantity-1))+1];
+}
+
+
+/*
+    Нахождение такого элемента поля,
+    который нужно умножить на первый
+    аргумент, чтобы получить второй.
+    (деление)
+*/
+
+gf_elem_t gf_div(gf_t *gf, gf_elem_t a, gf_elem_t b) {
+    if (a == 0 && b == 0) return 0;
+    if (a == 0 || b == 0) {
+        printf("gf div error: invalid args\n");
+        return 0;
+    }
+    int elem_a_degree = gf->rev_table[a]-1;
+    int elem_b_degree = gf->rev_table[b]-1;
+    if (elem_b_degree >= elem_a_degree) return gf->table[elem_a_degree + elem_b_degree + 1];
+    else return gf->table[(gf->total_quantity-1) - elem_a_degree + elem_b_degree + 1];
+}
+
+
+/*
+    Отображение эламента поля в двоичном виде
+*/
+
+void gf_elem_print(gf_t *gf, gf_elem_t elem) {
+    int mask = 1 << (gf->power-1);
+    for (int i = 0; i < gf->power; i++) {
+        printf("%d", (elem & mask) >> (gf->power-1));
+        elem <<= 1;
+    }
+}
+
+
+/*
     Отображение элементов поля через printf.
 */
 
 void gf_print(gf_t *gf) {
-    for (int i = 0; i < gf->total_quantity; i++) {
-        printf("%d: %d\n", i-1, gf->table[i]);
+    printf(" id   | degree | element\n");
+    printf(" 0    | -      | %-4d\n", gf->table[0]);
+    for (int i = 1; i < gf->total_quantity; i++) {
+        printf(" %-4d | %-6d | %-4d\n", i, i-1, gf->table[i]);
+    }
+}
+
+
+/*
+    Отображение элементов поля через printf в бинарном виде
+*/
+
+void gf_print_bin(gf_t *gf) {
+    printf(" id   | degree | element\n");
+    printf(" 0    | -      | 0b");
+    gf_elem_print(gf, gf->table[0]);
+    printf("\n");
+    for (int i = 1; i < gf->total_quantity; i++) {
+        printf(" %-4d | %-6d | 0b", i, i-1);
+        gf_elem_print(gf, gf->table[i]);
+        printf("\n");
     }
 }
 

@@ -21,7 +21,13 @@ struct polinom
     Можно указать начальную емкость.
 */
 
-polinom_t* polinom_init(int capacity, gf_t* gf) {
+polinom_t* polinom_init(gf_t* gf, int capacity) {
+
+    if (capacity < 1) {
+        printf("polinom init warning: capacity < 1\n");
+        capacity = 1;
+    }
+
     polinom_t *polinom = malloc(sizeof(polinom_t));
     polinom->gf = gf;
     polinom->capacity = capacity;
@@ -29,6 +35,17 @@ polinom_t* polinom_init(int capacity, gf_t* gf) {
     polinom->data = calloc(capacity, sizeof(gf_elem_t));
     for (int i = 0; i < capacity; i++) polinom->data[i] = 0;
     return polinom;
+}
+
+
+/*
+    Метод для освобождения памяти,
+    определенной под полином
+*/
+
+void polinom_free(polinom_t *polinom) {
+    free(polinom->data);
+    free(polinom);
 }
 
 
@@ -42,11 +59,13 @@ polinom_t* polinom_init(int capacity, gf_t* gf) {
 */
 
 void polinom_extencion(polinom_t *polinom, int size) {
+    int old_size = polinom->capacity;
     gf_elem_t* new_data = calloc(polinom->capacity + size, sizeof(gf_elem_t));
     memcpy(new_data, polinom->data, polinom->capacity * sizeof(gf_elem_t));
     free(polinom->data);
     polinom->data = new_data;
     polinom->capacity += size;
+    for (int i = old_size; i < polinom->capacity; i++) polinom->data[i] = 0;
 }
 
 
@@ -83,12 +102,55 @@ void polinom_set(polinom_t *polinom, int index, gf_elem_t elem) {
 
 
 /*
+    Метод для добалвения множества коэффициентов
+*/
+
+void polinom_append(polinom_t *polinom, int arr[], int size) {
+    if (polinom->capacity < size) polinom_extencion(polinom, size - polinom->capacity);
+    for (int i = 0; i < size; i++) {
+        if (!arr[i]) continue;
+        polinom_set(polinom, i, arr[i]);
+    }
+}
+
+
+/*
+    Метод для сложение полиномов
+    Результат сложения записывается
+    в первый переданный полином
+*/
+
+void polinom_add(polinom_t *polinom1, polinom_t *polinom2) {
+    if (polinom1->gf != polinom2->gf) {
+        printf("polinom add error: polinoms are not in same GF\n");
+        return;
+    }
+
+    int i = 0;
+    while (i < polinom1->degree && i < polinom2->degree) {
+        polinom_set(polinom1, i, gf_add(polinom1->data[i], polinom2->data[i]));
+        i++;
+    }
+
+    if (i < polinom1->degree) return;
+    if (i < polinom2->degree) {
+        if (polinom1->capacity < polinom2->degree)
+            polinom_extencion(polinom1, polinom2->degree - polinom1->capacity);
+        while (i < polinom2->degree) {
+            polinom_set(polinom1, i, polinom2->data[i]);
+            i++;
+        }
+    }
+}
+
+
+/*
     Метод для перемножения двух полиномов
     в установленном поле Галуа.
 */
 
 void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
-    polinom_t *polinom = polinom_init(polinom1->capacity + polinom2->capacity, polinom1->gf);
+    polinom_t *polinom = polinom_init(polinom1->gf, polinom1->degree + polinom2->degree - 1);
     // TODO: заменить capacity на degree
 
     if (polinom1->gf != polinom2->gf) {
@@ -98,19 +160,47 @@ void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
 
     for (int i = 0; i < polinom1->degree; i++) {
         for (int j = 0; j < polinom2->degree; j++) {
-            gf_elem_t mult = gf_mult(polinom1->data[i], polinom2->data[j], polinom1->gf);
+            gf_elem_t mult = gf_mult(polinom1->gf, polinom1->data[i], polinom2->data[j]);
             polinom_set(polinom, i+j, gf_add(polinom->data[i+j], mult));
         }
     }
 
-    if (polinom->capacity > polinom1->capacity) polinom_extencion(polinom1, polinom->capacity - polinom1->capacity);
-
-    for (int i = 0; i < polinom->degree; i++) {
-        polinom_set(polinom1, i, polinom->data[i]);
-    }
-
-    free(polinom->data);
+    polinom1->capacity = polinom->capacity;
+    polinom1->degree = polinom->degree;
+    free(polinom1->data);
+    polinom1->data = polinom->data;
     free(polinom);
+}
+
+
+/*
+    Метод для "вызова" полинома
+    То есть, берется коэффициент
+    (аргумент gf_elem_t (e^m))
+    и подставляется за место
+    каждого X^n, вычисляется (e^m)^n
+    и суммируется, а по завершени
+    возвращается
+
+*/
+
+gf_elem_t polinom_call(polinom_t *polinom, gf_elem_t elem) {
+    gf_elem_t result = 0;
+    for (int i = 0; i < polinom->degree; i++) {
+        result = gf_add(
+            result,
+            gf_mult(
+                polinom->gf,
+                polinom->data[i],
+                gf_pow(
+                    polinom->gf,
+                    elem,
+                    i
+                )
+            )
+        );
+    }
+    return result;
 }
 
 
@@ -119,11 +209,24 @@ void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
 */
 
 polinom_t* polinom_copy(polinom_t *polinom1) {
-    polinom_t *polinom = polinom_init(polinom1->capacity, polinom1->gf);
+    polinom_t *polinom2 = polinom_init(polinom1->gf, polinom1->capacity);
     for (int i = 0; i < polinom1->degree; i++) {
-        polinom_set(polinom, i, polinom1->data[i]);
+        if (polinom1->data[i])
+            polinom_set(polinom2, i, polinom1->data[i]);
     }
-    return polinom;
+    return polinom2;
+}
+
+
+/*
+    Метод для очистки полинома
+*/
+
+void polinom_clear(polinom_t *polinom) {
+    for (int i = 0; i < polinom->capacity; i++) {
+        polinom->data[i] = 0;
+    }
+    polinom->degree = 0;
 }
 
 
@@ -142,15 +245,4 @@ void polinom_print(polinom_t *polinom) {
     }
     if (is_first) printf("0");
     printf("\n");
-}
-
-
-/*
-    Метод для освобождения памяти,
-    определенной под полином
-*/
-
-void polinom_free(polinom_t *polinom) {
-    free(polinom->data);
-    free(polinom);
 }
