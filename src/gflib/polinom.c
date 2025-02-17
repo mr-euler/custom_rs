@@ -174,6 +174,37 @@ void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
 
 
 /*
+    Метод для "вызова" полинома
+    То есть, берется коэффициент
+    (аргумент gf_elem_t (e^m))
+    и подставляется за место
+    каждого X^n, вычисляется (e^m)^n
+    и суммируется, а по завершени
+    возвращается
+
+*/
+
+gf_elem_t polinom_call(polinom_t *polinom, gf_elem_t elem) {
+    gf_elem_t result = 0;
+    for (int i = 0; i < polinom->degree; i++) {
+        result = gf_add(
+            result,
+            gf_mult(
+                polinom->gf,
+                polinom->data[i],
+                gf_pow(
+                    polinom->gf,
+                    elem,
+                    i
+                )
+            )
+        );
+    }
+    return result;
+}
+
+
+/*
     Метод для копирования полинома
 */
 

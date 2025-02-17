@@ -409,6 +409,37 @@ int test10() {
     return 0;
 }
 
+int test11() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    polinom_t *polinom1 = polinom_init(gf, 1);
+    gf_elem_t data1[] = {
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 2),
+    };
+    polinom_append(polinom1, data1, sizeof(data1)/sizeof(data1[0]));
+
+    gf_elem_t result = polinom_call(polinom1, gf_get_by_degree(gf, 2));
+
+    if (result != gf_get_by_degree(gf, 1)) {
+        printf("\t\tpolinom call error: wrong answer (%d != %d)\n", result, gf_get_by_degree(gf, 1));
+        return 1;
+    }
+    
+
+    polinom_free(polinom1);
+    gf_free(gf);
+    return 0;
+}
+
 int main() {
 
     printf("Тестирование gflib\n");
@@ -492,6 +523,14 @@ int main() {
     // Тест 10: проверка фукнции polinom_add
     printf("\ttest 10: проверка фукнции polinom_mult\n");
     if (test10()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 11: проверка фукнции polinom_call
+    printf("\ttest 11: проверка фукнции polinom_call\n");
+    if (test11()) {
         printf("\t\tне пройден\n");
         return 1;
     }

@@ -17,6 +17,7 @@ void polinom_set(polinom_t *polinom, int index, gf_elem_t elem);
 void polinom_append(polinom_t *polinom, int arr[], int size);
 void polinom_add(polinom_t *polinom1, polinom_t *polinom2);
 void polinom_mult(polinom_t *polinom1, polinom_t *polinom2);
+gf_elem_t polinom_call(polinom_t *polinom, gf_elem_t elem);
 polinom_t* polinom_copy(polinom_t *polinom1);
 void polinom_print(polinom_t *polinom);
 void polinom_free(polinom_t *polinom);
