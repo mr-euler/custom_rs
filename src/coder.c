@@ -5,6 +5,8 @@
 #include "gflib/polinom.h"
 #include "gflib/gen_polinom.h"
 
+#define gf_get gf_get_by_degree
+
 int count_bits(int num) {
     int count = 0;
     while (num) {
@@ -25,13 +27,16 @@ int decimal_to_binary(int num) {
     return decimal;
 }
 
+//void poly_division()
+
+
 int main() {
 
     // Параметры кода РС
 
     // Константы
 
-    int b = 1; // Параметр кодирования
+    int b = 0; // Параметр кодирования
 
     // Динамические параметры
 
@@ -42,8 +47,8 @@ int main() {
     printf("Пример: x^3+x+1 => 1011\n");
     printf(">>");
     //scanf("%d", &form_polinom);
-    form_polinom=10011;
-    //form_polinom=1011;
+    //form_polinom=10011;
+    form_polinom=1011;
     form_polinom = decimal_to_binary(form_polinom); // Преобразование 1011 => 11
     printf("\n"); // Отступ
 
@@ -52,8 +57,8 @@ int main() {
     printf("Введите количество информационных символов.\n");
     printf(">>");
     //scanf("%d", &k);
-    //k=3;
-    k=9;
+    k=3;
+    //k=9;
     printf("\n"); // Отступ
 
 
@@ -81,77 +86,51 @@ int main() {
     polinom_print(gen_polinom);
 
 
-    //int data[]={12,2,8,1,4,5,10,10,4}; // мой вариант
-    int data[]={10,13,5,8,9,2,7,7,7}; // пример от Гали
-   // int data[]={13,9,7,14,5,3,2,8,14}; // хуйня со студфайлов
-   // int data[]={4,-1,3}; // полином из методички Владимирова
-    polinom_t *info_poly=polinom_init(k,gf);
+   // int data[]={12,2,8,1,4,5,10,10,4}; // мой вариант
+    //int data[]={10,13,5,8,9,2,7,7,7}; // пример от Гали
+ //  int data[]={13,9,7,14,5,3,2,8,14}; // хуйня со студфайлов
+    int data[]={4,-1,3}; // полином из методички Владимирова
+    polinom_t *info_poly=polinom_init(gf,k);
     for(int i=0;i<k;i++)
     {
-       polinom_set(info_poly, i, gf_get(gf,data[i]+1));
+       polinom_set(info_poly, i, gf_get_by_id(gf,data[i]+1));
+       //polinom_set(info_poly, i, gf_get_by_degree(gf,data[i]));
     }
 
-    polinom_t *encoded=polinom_init(n,gf);
+    polinom_t *encoded=polinom_init(gf,n);
     for(int i=r;i<n;i++)
     {
        polinom_set(encoded, i, info_poly->data[i-r]);
     }
 
-    int temp_array[n]; // массив для хранения остатков от деления
-    for (int i=0;i<n;i++) temp_array[i]=encoded->data[i];
+    int temp_divisor[n]; // массив для хранения остатков от деления
+    for (int i=0;i<n;i++) temp_divisor[i]=encoded->data[i];
 
-    int index=n-1; // контролируем старшую степень делимого
-    int value=temp_array[index];
-    int round=0; // реализует сдвиг в  temp_array
-    int temp_devision[gen_polinom->degree];
-    while(index>=gen_polinom->degree-1) // до тех пор пока степень делимого не будет равна степени генераторного полинова, включая её
+    int multiplier=temp_divisor[n-1];
+    int division_result[gen_polinom->degree];
+
+    for(int i=0;i<=n-gen_polinom->degree;i++) // до тех пор пока степень делимого не будет равна степени генераторного полинова, включая её
     {  
-        for(int i=0;i<gen_polinom->degree-1;i++)
+        for(int j=0;j<gen_polinom->degree-1;j++)
         {
             // умножаем ген. полином на элемент при старшей степени и складываем его с делимым/остатком
-            temp_devision[i]=gf_add(gf_mult(gen_polinom->data[i],value,gf),temp_array[i+k-1-round]);
-            temp_array[n-gen_polinom->degree-round+i]=temp_devision[i];
-        }//
-        round++;
-        index--;
-        value=temp_devision[gen_polinom->degree-2];
-      // index=0;
+            division_result[j]=gf_add(gf_mult(gf,gen_polinom->data[j],multiplier),temp_divisor[j+k-1-i]);
+            temp_divisor[n-gen_polinom->degree-i+j]=division_result[j];
+        }
+        multiplier=division_result[gen_polinom->degree-2];
     }
 
-    for(int i=0;i<r;i++) encoded->data[i]=temp_array[i];
+    for(int i=0;i<r;i++) encoded->data[i]=temp_divisor[i];
     for(int i=0;i < n;i++) printf("encoded%d = %d\n",i,gf->rev_table[encoded->data[i]]-1);
     printf("\n"); // Отступ
 
-    for (int i=0;i<n;i++) temp_array[i]=encoded->data[i];
+    //for (int i=0;i<n;i++) temp_divisor[i]=encoded->data[i];
+    //temp_divisor[0]=gf_get(gf,2); // Раскоментировать, чтобы получился полином Владимирова. Результат проверен, сходится с листочком.
+    //temp_divisor[1]=gf_get(gf,2);
+    //temp_divisor[2]=gf_get(gf,1);
+    //temp_divisor[3]=gf_get(gf,4);
     
-    //temp_array[0]=gf_get(gf,2+1); // Раскоментировать, чтобы получился полином Владимирова. Результат проверен, сходится с листочком.
-    //temp_array[1]=gf_get(gf,2+1);
-    //temp_array[2]=gf_get(gf,1+1);
-    //temp_array[3]=gf_get(gf,4+1);
-    
-    index=n-1; // контролируем старшую степень делимого
-    
-    value=temp_array[index];
-    index=n-1;
-    round=0;
-    while(index>=gen_polinom->degree-1) // до тех пор пока степень делимого не будет равна степени генераторного полинова, включая её
-    {  
-        for(int i=0;i<gen_polinom->degree-1;i++)
-        {
-            // умножаем ген. полином на элемент при старшей степени и складываем его с делимым/остатком
-            temp_devision[i]=gf_add(gf_mult(gen_polinom->data[i],value,gf),temp_array[i+k-1-round]);
-            temp_array[n-gen_polinom->degree-round+i]=temp_devision[i];
-        }//
-        round++;
-        index--;
-        value=temp_devision[gen_polinom->degree-2];
-      // index=0;
-    }
-
-
-    for(int i=0;i<r;i++) printf("CHECK%d = %d\n",i,gf->rev_table[temp_array[i]]-1);
-
-    // Освобождение памяти, выделенной под данные
+  // Освобождение памяти, выделенной под данные
     polinom_free(gen_polinom);
     gf_free(gf);
 
