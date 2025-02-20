@@ -205,6 +205,27 @@ gf_elem_t polinom_call(polinom_t *polinom, gf_elem_t elem) {
 
 
 /*
+    Метод для сдвига полинома вправо
+    e^3*x^0 + e^2*x^1 + e^1*x^2 ->
+    -> polinom_right_shift(polinom, 2) ->
+    -> e^3*x^2 + e^2*x^3 + e^1*x^4
+*/
+
+void polinom_right_shift(polinom_t *polinom, int shift) {
+    if (shift < 1) return;
+    if (polinom->capacity - polinom->degree < shift)
+        polinom_extencion(polinom, shift - (polinom->capacity - polinom->degree));
+    for (int i = polinom->degree; i >= 0; i--) {
+        polinom->data[shift + i] = polinom->data[i];
+    }
+    for (int i = 0; i < shift; i++) {
+        polinom->data[i] = 0;
+    }
+    polinom_calc_degree(polinom);
+}
+
+
+/*
     Метод для копирования полинома
 */
 

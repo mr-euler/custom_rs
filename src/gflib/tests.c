@@ -509,9 +509,9 @@ int test13() {
         return 1;
     }
 
-    for (int i = 0; i < polinom1->degree; i++) {
-        if (data1[i] != 0) {
-            printf("\t\tpolinom clear error: wrong element (%d != 0)\n", data1[i]);
+    for (int i = 0; i < polinom1->capacity; i++) {
+        if (polinom1->data[i] != 0) {
+            printf("\t\tpolinom clear error: wrong element (%d != 0)\n", polinom1->data[i]);
             return 1;
         }
     }
@@ -569,11 +569,12 @@ int test14() {
     int r = n - k; // Количество исправляющих символов
     int t = r / 2; // Количество возможных для исправления символов 
 
-    polinom_t *tmp_polinom = polinom_init(gf, r+1);
-    polinom_set(tmp_polinom, tmp_polinom->capacity-1, 1);
+    // polinom_t *tmp_polinom = polinom_init(gf, r+1);
+    // polinom_set(tmp_polinom, tmp_polinom->capacity-1, 1);
 
     polinom_t *encoded = polinom_copy(info_polinom);
-    polinom_mult(encoded, tmp_polinom);
+    polinom_right_shift(encoded, r);
+    // polinom_mult(encoded, tmp_polinom);
 
     // printf("Информационный полином (сдвиг): ");
     // polinom_print(encoded);
@@ -610,10 +611,58 @@ int test14() {
 
     
     polinom_free(info_polinom);
-    polinom_free(tmp_polinom);
+    // polinom_free(tmp_polinom);
     polinom_free(encoded);
     polinom_free(gen_polinom);
     polinom_free(mod);
+    gf_free(gf);
+    return 0;
+}
+
+int test15() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    polinom_t *polinom1 = polinom_init(gf, 6);
+    gf_elem_t data1[] = {
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 2),
+    };
+    polinom_append(polinom1, data1, sizeof(data1)/sizeof(data1[0]));
+
+    polinom_right_shift(polinom1, 4);
+
+    if (polinom1->degree != 8) {
+        printf("\t\tpolinom right shift error: degree != 8 (%d)\n", polinom1->degree);
+        return 1;
+    }
+
+    gf_elem_t check[] = {
+        0,
+        0,
+        0,
+        0,
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 2),
+    };
+
+    for (int i = 0; i < polinom1->degree; i++) {
+        if (polinom1->data[i] != check[i]) {
+            printf("\t\tpolinom right shift error: wrong element (%d != 0)\n", polinom1->data[i]);
+            return 1;
+        }
+    }
+    
+    polinom_free(polinom1);
     gf_free(gf);
     return 0;
 }
@@ -733,6 +782,14 @@ int main() {
     // Тест 14: проверка фукнции polinom_mod
     printf("\ttest 14: проверка фукнции polinom_mod\n");
     if (test14()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 15: проверка фукнции polinom_right_shift
+    printf("\ttest 15: проверка фукнции polinom_right_shift\n");
+    if (test15()) {
         printf("\t\tне пройден\n");
         return 1;
     }
