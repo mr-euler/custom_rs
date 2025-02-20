@@ -521,6 +521,103 @@ int test13() {
     return 0;
 }
 
+int test14() {
+    int m = 4; // GF(q^m)
+    int form_polinom = 0b10011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    polinom_t *info_polinom = polinom_init(gf, 1);
+    // gf_elem_t data1[] = { // Галин
+    //     gf_get_by_degree(gf, 10),
+    //     gf_get_by_degree(gf, 13),
+    //     gf_get_by_degree(gf, 5),
+    //     gf_get_by_degree(gf, 8),
+    //     gf_get_by_degree(gf, 9),
+    //     gf_get_by_degree(gf, 2),
+    //     gf_get_by_degree(gf, 7),
+    //     gf_get_by_degree(gf, 7),
+    //     gf_get_by_degree(gf, 7),
+    // };
+
+    // int data[]={13,9,7,14,5,3,2,8,14};
+    gf_elem_t data1[] = { // "Хуйня со студфайла" (c) Жак Фрэско
+        gf_get_by_degree(gf, 13),
+        gf_get_by_degree(gf, 9),
+        gf_get_by_degree(gf, 7),
+        gf_get_by_degree(gf, 14),
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 8),
+        gf_get_by_degree(gf, 14),
+    };
+    polinom_append(info_polinom, data1, sizeof(data1)/sizeof(data1[0]));
+    
+    // printf("Информационный полином: ");
+    // polinom_print(info_polinom);
+    // printf("\n");
+
+    int n = (1 << m)-1; // Количество кодовых символов
+    // Подрязумевается, что n+1 == 2^m
+
+    int b = 1;
+    int k = 9;
+    int r = n - k; // Количество исправляющих символов
+    int t = r / 2; // Количество возможных для исправления символов 
+
+    polinom_t *tmp_polinom = polinom_init(gf, r+1);
+    polinom_set(tmp_polinom, tmp_polinom->capacity-1, 1);
+
+    polinom_t *encoded = polinom_copy(info_polinom);
+    polinom_mult(encoded, tmp_polinom);
+
+    // printf("Информационный полином (сдвиг): ");
+    // polinom_print(encoded);
+    // printf("\n");
+
+
+    polinom_t *gen_polinom = generating_polinom(gf, b, t);
+
+    polinom_t *mod = polinom_copy(encoded);
+    polinom_mod(mod, gen_polinom);
+
+    // printf("Остаток: ");
+    // polinom_print(mod);
+    // printf("\n");
+
+    polinom_add(encoded, mod);
+
+    // printf("Итоговый кодовый полином: ");
+    // polinom_print(encoded);
+    // printf("\n");
+
+    polinom_mod(encoded, gen_polinom);
+
+    // printf("Проверка: ");
+    // polinom_print(encoded);
+    // printf("\n");
+    
+    for (int i = 0; i < encoded->degree; i++) {
+        if (encoded->data[i] != 0) {
+            printf("\t\tpolinom mod error: wrong element (%d != 0)\n", encoded->data[i]);
+            return 1;
+        }
+    }
+
+    
+    polinom_free(info_polinom);
+    polinom_free(tmp_polinom);
+    polinom_free(encoded);
+    polinom_free(gen_polinom);
+    polinom_free(mod);
+    gf_free(gf);
+    return 0;
+}
+
 int main() {
 
     printf("Тестирование gflib\n");
@@ -628,6 +725,14 @@ int main() {
     // Тест 13: проверка фукнции polinom_clear
     printf("\ttest 13: проверка фукнции polinom_clear\n");
     if (test13()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 14: проверка фукнции polinom_mod
+    printf("\ttest 14: проверка фукнции polinom_mod\n");
+    if (test14()) {
         printf("\t\tне пройден\n");
         return 1;
     }

@@ -246,3 +246,41 @@ void polinom_print(polinom_t *polinom) {
     if (is_first) printf("0");
     printf("\n");
 }
+
+
+/*
+    Метод для получения остатка от
+    деления полинома на полином
+*/
+
+void polinom_mod(polinom_t *dividend, polinom_t *divisor) {
+    while (dividend->degree >= divisor->degree) {
+        polinom_t *tmp = polinom_copy(divisor);
+        polinom_t *shift = polinom_init(dividend->gf, dividend->degree - divisor->degree + 1);
+        gf_elem_t multiplier = gf_div(
+            divisor->gf,
+            divisor->data[divisor->degree-1],
+            dividend->data[dividend->degree-1]
+        );
+
+        // gf_elem_t check = gf_mult(dividend->gf, multiplier, divisor->data[divisor->degree-1]);
+        // if (check != dividend->data[dividend->degree-1]) {
+        //     printf("WA ");
+        //     gf_elem_print(divisor->gf, divisor->data[divisor->degree-1]); printf(" ");
+        //     gf_elem_print(dividend->gf, dividend->data[dividend->degree-1]); printf(" ");
+        //     gf_elem_print(divisor->gf, multiplier); printf("\n");
+        //     return;
+        // }
+
+        // Данные для сохранения целой части от деления:
+        // коэффициент: multiplier
+        // степень: dividend->degree - divisor->degree
+
+        polinom_set(shift, shift->capacity-1, multiplier);
+        polinom_mult(tmp, shift);
+        polinom_add(dividend, tmp);
+        polinom_free(tmp);
+        polinom_free(shift);
+    }
+}
+
