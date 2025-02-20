@@ -43,14 +43,21 @@ int main() {
     printf(">>");
     scanf("%d", &form_polinom);
     form_polinom = decimal_to_binary(form_polinom); // Преобразование 1011 => 11
-    printf("\n"); // Отступ
+    // printf("\n"); // Отступ
 
     // Количество информационных символов
     int k;
     printf("Введите количество информационных символов.\n");
     printf(">>");
     scanf("%d", &k);
-    printf("\n"); // Отступ
+    // printf("\n"); // Отступ
+
+    gf_elem_t info[k];
+    printf("Введите информационные символы (в виде элементов поля) через пробел.\n");
+    printf(">>");
+    for (int i = 0; i < k; i++) {
+        scanf("%d", &info[i]);
+    }
 
     // Остальные параметры
 
@@ -65,19 +72,38 @@ int main() {
     // Формирование поля Галуа
     gf_t *gf = gf_init(m);
     if(gf_build(gf, form_polinom)) {
-        printf("gf build error: polinom is not primitive\n");
+        printf("gf build error: переданный полином не является неприводимым\n");
         return 1;
     }
     // gf_print(gf); // Отобразим элементы поля Галуа
 
+    // Преобразовываем информационные символы в полином
+    polinom_t *info_polinom = polinom_init(gf, 1);
+    polinom_append(info_polinom, info, sizeof(info)/sizeof(info[0]));
 
     // Формирование порождающего полинома
     polinom_t *gen_polinom = generating_polinom(gf, b, t);
-    printf("Порождающий полином:\n");
-    polinom_print(gen_polinom);
 
+    // Формируем кодовый полином
+    polinom_t *encoded = polinom_copy(info_polinom);
+    polinom_right_shift(encoded, r); // И сдвигаем его на r вправо
+
+    // Получаем остаток от деления
+    polinom_t *mod = polinom_copy(encoded);
+    polinom_mod(mod, gen_polinom);
+    polinom_add(encoded, mod); // И "склеиваем" его с кодовым полиномом
+
+    // Отображаем кодовый полином
+    printf("Итоговый кодовый вектор.\n[");
+    for (int i = 0; i < encoded->degree; i++) {
+        printf(" %d", encoded->data[i]);
+    }
+    printf(" ]\n");
 
     // Освобождение памяти, выделенной под данные
+    polinom_free(mod);
+    polinom_free(encoded);
+    polinom_free(info_polinom);
     polinom_free(gen_polinom);
     gf_free(gf);
 
