@@ -52,13 +52,6 @@ int main() {
     scanf("%d", &k);
     // printf("\n"); // Отступ
 
-    gf_elem_t info[k];
-    printf("Введите информационные символы (в виде элементов поля) через пробел.\n");
-    printf(">>");
-    for (int i = 0; i < k; i++) {
-        scanf("%d", &info[i]);
-    }
-
     // Остальные параметры
 
     int m = count_bits(form_polinom)-1; // GF(q^m)
@@ -76,6 +69,22 @@ int main() {
         return 1;
     }
     // gf_print(gf); // Отобразим элементы поля Галуа
+
+    gf_elem_t info[k];
+    int read_data = 1;
+    // Чтение данных и проверка на соответствие полю
+    while (read_data) {
+        read_data = 0;
+        printf("Введите информационные символы (в виде элементов поля) через пробел.\n");
+        printf(">>");
+        for (int i = 0; i < k; i++) {
+            scanf("%d", &info[i]);
+            if (info[i] >= gf->total_quantity) read_data = 1;
+        }
+
+        if (!read_data) break;
+        printf("Получен неверный элемент, повторите попытку.\n");
+    }
 
     // Преобразовываем информационные символы в полином
     polinom_t *info_polinom = polinom_init(gf, 1);
