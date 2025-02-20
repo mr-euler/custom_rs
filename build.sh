@@ -10,6 +10,9 @@ elif   [[ "$1" =~ ^(2|coder)$ ]]; then
 elif   [[ "$1" =~ ^(3|tests)$ ]]; then
   app=tests
   src="gflib"
+elif   [[ "$1" =~ ^(4|fsearch)$ ]]; then
+  app=forming_search
+  src=""
 else
   echo "wrong argument"
   exit
