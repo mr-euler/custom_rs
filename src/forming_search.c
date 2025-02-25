@@ -25,6 +25,21 @@ int binary_to_decimal(int num) {
     return result;
 }
 
+void polynom_print(int result) {
+    int first = 1;
+    int c = 0;
+    while (result) {
+        if (result & 1) {
+            if (!first) printf(" + ");
+            printf("x^%d", c);
+            first = 0;
+        }
+        c++;
+        result >>= 1;
+    }
+    printf("\n");
+}
+
 int main() {
     int m; // GF(q^m)
     printf("Введите степень поля Галуа (от 2).\n>>");
@@ -38,7 +53,8 @@ int main() {
     for (int i = from; i < to; i++) {
         gf_t *gf = gf_init(m);
         if(!gf_build(gf, i)) {
-            printf("%3d | %d\n", i, binary_to_decimal(i));
+            printf("%3d | %d | ", i, binary_to_decimal(i));
+            polynom_print(i);
             gf_free(gf);
         }
     }
