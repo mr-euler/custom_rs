@@ -53,7 +53,7 @@ int main() {
     for (int i = from; i < to; i++) {
         gf_t *gf = gf_init(m);
         if(!gf_build(gf, i)) {
-            printf("%3d | %d | ", i, binary_to_decimal(i));
+            printf("%d | ", binary_to_decimal(i));
             polynom_print(i);
             gf_free(gf);
         }
