@@ -13,6 +13,9 @@ elif   [[ "$1" =~ ^(3|tests)$ ]]; then
 elif   [[ "$1" =~ ^(4|fsearch)$ ]]; then
   app=forming_search
   src=""
+elif   [[ "$1" =~ ^(5|decoder)$ ]]; then
+  app=decoder
+  src=""
 else
   echo "wrong argument"
   exit
