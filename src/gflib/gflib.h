@@ -18,6 +18,7 @@ gf_t* gf_init(int power);
 int gf_build(gf_t *gf, int polinom);
 gf_elem_t gf_get_by_id(gf_t *gf, int id);
 gf_elem_t gf_get_by_degree(gf_t *gf, int id);
+int gf_get_by_value(gf_t *gf, gf_elem_t value);
 gf_elem_t gf_add(gf_elem_t a, gf_elem_t b);
 gf_elem_t gf_mult(gf_t *gf, gf_elem_t a, gf_elem_t b);
 gf_elem_t gf_pow(gf_t *gf, gf_elem_t elem, int degree);

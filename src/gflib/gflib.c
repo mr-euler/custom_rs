@@ -128,6 +128,19 @@ gf_elem_t gf_get_by_degree(gf_t *gf, int degree) {
 
 
 /*
+    Перевод из элемента поля в степень примитивного элемента
+*/
+
+int gf_get_by_value(gf_t *gf, gf_elem_t value) {
+    if (value < 1 || value > gf->total_quantity-1) {
+        printf("gf get value error: invalid value {%d}", value);
+        return 0;
+    }
+    return gf->rev_table[value-1];
+}
+
+
+/*
     Сложение двух элементов поля.
     Реализации для g_elem_t и g_inner_t.
 */
