@@ -94,10 +94,12 @@ int main() {
     // Считаем синдромы от b до b+2t-1
     gf_elem_t syndroms[b+2*t-1];
     syndroms[0] = 0;
+    printf("syndrom: [");
     for (int i = b; i <= b+2*t-1; i++) {
         syndroms[i] = polinom_call(encoded, gf_get_by_degree(gf, i));
-        printf("syndrom %d: %d\n", i, syndroms[i]);
+        printf(" %d", syndroms[i]);
     }
+    printf(" ]\n");
 
 
     gf_free(gf);
