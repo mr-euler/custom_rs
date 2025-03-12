@@ -92,13 +92,14 @@ int main() {
     polinom_append(encoded, coded, n);
 
     // Считаем синдромы от b до b+2t-1
-    polinom_t *syndroms = polinom_init(gf, b+2*t-1);
-    // printf("syndrom: [");
+    polinom_t *syndroms = polinom_init(gf, b+2*t);
+    printf("syndrom: [");
     for (int i = b; i <= b+2*t-1; i++) {
         polinom_set(syndroms, i, polinom_call(encoded, gf_get_by_degree(gf, i)));
-        // printf(" %d", syndroms[i]);
+        printf(" %d", syndroms->data[i]);
+        // printf(" %d", polinom_call(encoded, gf_get_by_degree(gf, i)));
     }
-    // printf(" ]\n");
+    printf(" ]\n");
 
     // Алгоритм БМ
 
@@ -109,7 +110,7 @@ int main() {
     polinom_t *p = polinom_init(gf, 2);
     polinom_set(p, 1, 1);
     int l = 0;
-    int d = n - k + 1;
+    int d = 2*t;
     
     for (int i = 0; i < d; i++) {
         // Пункт 1
@@ -178,12 +179,35 @@ int main() {
     /*
         Позиции ошибок можно получить путем
         преобразования элемента поля через
-        gf_get_by_value(solve[i])
+        gf_get_by_value(gf, solve[i])
     */
 
 
     // Алгоритм форни
-    
+    polinom_t *sigma_derivative = polinom_copy(sigma);
+    polinom_derivative(sigma_derivative);
+    gf_elem_t errors[sigma->degree];
+    for (int i = 0; i < sigma->degree; i++) {
+        errors[i] = gf_mult(
+            gf,
+            gf_pow(gf, solve[i], 1-b),
+            gf_mult(
+                gf,
+                polinom_call(w, gf_neg(gf, solve[i])),
+                gf_neg(gf, polinom_call(sigma_derivative, gf_neg(gf, solve[i])))
+            )
+        );
+    }
+
+
+    // Отображение ошибок
+    printf("Обображение ошибок:\n");
+    for (int i = 0; i < sigma->degree; i++) {
+        if (!solve[i]) printf("\t%d - 0");
+        else printf("\t%d - ", gf_get_by_value(gf, solve[i]));
+        gf_elem_print(gf, errors[i]);
+        printf("\n");
+    }
 
 
     gf_free(gf);
