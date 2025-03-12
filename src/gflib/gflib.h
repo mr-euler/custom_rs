@@ -23,6 +23,7 @@ gf_elem_t gf_add(gf_elem_t a, gf_elem_t b);
 gf_elem_t gf_mult(gf_t *gf, gf_elem_t a, gf_elem_t b);
 gf_elem_t gf_pow(gf_t *gf, gf_elem_t elem, int degree);
 gf_elem_t gf_div(gf_t *gf, gf_elem_t a, gf_elem_t b);
+gf_elem_t gf_neg(gf_t *gf, gf_elem_t elem);
 void gf_elem_print(gf_t *gf, gf_elem_t elem);
 void gf_print(gf_t *gf);
 void gf_print_bin(gf_t *gf);

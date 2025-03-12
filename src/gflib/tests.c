@@ -667,6 +667,26 @@ int test15() {
     return 0;
 }
 
+int test4_1() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    gf_elem_t neg = gf_neg(gf, gf_get_by_degree(gf, 1));
+
+    if (neg != gf_get_by_degree(gf, 6)) {
+        printf("\t\tgf negative error: e^-1 != e^6 (%d)\n", neg);
+        return 1;
+    }
+
+    gf_free(gf);
+    return 0;
+}
+
 int main() {
 
     printf("Тестирование gflib\n");
@@ -698,6 +718,14 @@ int main() {
     // Тест 4: операции с элементами поля Галуа
     printf("\ttest 4: операции с элементами поля Галуа\n");
     if (test4()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 4.1: операция получения обратного элемента поля Галуа
+    printf("\ttest 4.1: операция получения обратного элемента поля Галуа\n");
+    if (test4_1()) {
         printf("\t\tне пройден\n");
         return 1;
     }

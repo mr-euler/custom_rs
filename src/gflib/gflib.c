@@ -194,6 +194,19 @@ gf_elem_t gf_div(gf_t *gf, gf_elem_t a, gf_elem_t b) {
 
 
 /*
+    Метод для нахождения обратного элемента к члену поля
+*/
+
+gf_elem_t gf_neg(gf_t *gf, gf_elem_t elem) {
+    if (elem == 0) return 0;
+    if (elem == 1) return 1;
+    int degree = gf_get_by_value(gf, elem);
+    degree = gf->total_quantity-1-degree;
+    return gf_get_by_degree(gf, degree);
+}
+
+
+/*
     Отображение эламента поля в двоичном виде
 */
 
