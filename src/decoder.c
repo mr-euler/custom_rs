@@ -92,14 +92,76 @@ int main() {
     polinom_append(encoded, coded, n);
 
     // Считаем синдромы от b до b+2t-1
-    gf_elem_t syndroms[b+2*t-1];
-    syndroms[0] = 0;
-    printf("syndrom: [");
+    polinom_t *syndroms = polinom_init(gf, b+2*t-1);
+    // printf("syndrom: [");
     for (int i = b; i <= b+2*t-1; i++) {
-        syndroms[i] = polinom_call(encoded, gf_get_by_degree(gf, i));
-        printf(" %d", syndroms[i]);
+        polinom_set(syndroms, i, polinom_call(encoded, gf_get_by_degree(gf, i)));
+        // printf(" %d", syndroms[i]);
     }
-    printf(" ]\n");
+    // printf(" ]\n");
+
+    // Алгоритм БМ
+
+    // Исходные данные
+    // j = b..b+2t-1
+    polinom_t *sigma = polinom_init(gf, 2);
+    polinom_set(sigma, 0, 1);
+    polinom_t *p = polinom_init(gf, 2);
+    polinom_set(p, 1, 1);
+    int l = 0;
+    int d = n - k + 1;
+    
+    for (int i = 0; i < d; i++) {
+        // Пункт 1
+        gf_elem_t delta = 0;
+        for (int j = 0; j <= l; j++) {
+            delta = gf_add(delta, gf_mult(gf, sigma->data[j], syndroms->data[i-j-1]));
+        }
+
+        // Пункт 2
+        if (delta != 0) {
+            // Пункт 3
+            polinom_t *sigma_new = polinom_copy(sigma);
+            polinom_t *p_new = polinom_copy(p);
+            for (int k = 0; k < p_new->degree; k++) {
+                p_new->data[k] = gf_mult(gf, delta, p->data[k]);
+            }
+            polinom_calc_degree(p_new); // TODO: проверить, можно ли заменить
+            polinom_add(sigma_new, p_new);
+            polinom_free(p_new);
+
+            // Пункт 4
+            if (2*l < i) {
+
+                // Пункт 5
+                l = l - i;
+                polinom_free(p);
+                p = polinom_copy(sigma);
+                for (int k = 0; k < p->degree; k++) {
+                    p->data[k] = gf_div(gf, delta, p->data[k]);
+                }
+                polinom_calc_degree(p); // TODO: проверить, можно ли заменить
+            }
+
+            // Пункт 6
+            polinom_free(sigma);
+            sigma = sigma_new;
+        }
+
+        // Пункт 7
+        polinom_right_shift(p, 1);
+    }
+
+    // w(x) = S(x) * sigma(x) mod x**d
+    polinom_t *w = polinom_copy(syndroms);
+    polinom_mult(w, sigma);
+    polinom_t *mod = polinom_init(gf, d+1);
+    polinom_set(mod, d, 1);
+    polinom_mod(w, mod);
+    polinom_free(mod);
+
+    // Процедура Ченя
+    
 
 
     gf_free(gf);
