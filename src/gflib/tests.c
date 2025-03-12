@@ -687,6 +687,50 @@ int test4_1() {
     return 0;
 }
 
+int test16() {
+    int m = 3; // GF(q^m)
+    int form_polinom = 0b1011; // x^3 + x + 1
+    gf_t *gf = gf_init(m);
+    if(gf_build(gf, form_polinom)) {
+        printf("\t\tgf build error: полином не является неприводимый\n");
+        return 1;
+    }
+
+    polinom_t *polinom1 = polinom_init(gf, 6);
+    gf_elem_t data1[] = {
+        gf_get_by_degree(gf, 5),
+        gf_get_by_degree(gf, 2),
+        gf_get_by_degree(gf, 3),
+        gf_get_by_degree(gf, 2),
+    };
+    polinom_append(polinom1, data1, sizeof(data1)/sizeof(data1[0]));
+
+    polinom_derivative(polinom1);
+
+    if (polinom1->degree != 3) {
+        printf("\t\tpolinom dirictive error: degree != 3 (%d)\n", polinom1->degree);
+        return 1;
+    }
+
+    gf_elem_t check[] = {
+        gf_get_by_degree(gf, 2),
+        0,
+        gf_get_by_degree(gf, 2),
+        0
+    };
+
+    for (int i = 0; i < polinom1->degree; i++) {
+        if (polinom1->data[i] != check[i]) {
+            printf("\t\tpolinom dirictive error: wrong element (%d != %d)\n", polinom1->data[i], check[i]);
+            return 1;
+        }
+    }
+    
+    polinom_free(polinom1);
+    gf_free(gf);
+    return 0;
+}
+
 int main() {
 
     printf("Тестирование gflib\n");
@@ -818,6 +862,14 @@ int main() {
     // Тест 15: проверка фукнции polinom_right_shift
     printf("\ttest 15: проверка фукнции polinom_right_shift\n");
     if (test15()) {
+        printf("\t\tне пройден\n");
+        return 1;
+    }
+    printf("\t\tпройден\n");
+
+    // Тест 16: проверка фукнции polinom_dirictive
+    printf("\ttest 16: проверка фукнции polinom_dirictive\n");
+    if (test16()) {
         printf("\t\tне пройден\n");
         return 1;
     }

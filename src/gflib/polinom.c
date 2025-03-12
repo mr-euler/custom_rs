@@ -240,6 +240,30 @@ polinom_t* polinom_copy(polinom_t *polinom1) {
 
 
 /*
+    Метод для преобразования полинома в его простую производную
+*/
+
+void polinom_derivative(polinom_t *polinom) {
+    if (polinom->degree == 0) return;
+    polinom->data[0] = 0;
+    if (polinom->degree == 1) {
+        return;
+    }
+    gf_elem_t tmp = polinom->data[polinom->degree-1];
+    gf_elem_t tmp2;
+    polinom->data[polinom->degree-1] = 0;
+    for (int i = polinom->degree-2; i >= 1; i--) {
+        tmp2 = polinom->data[i];
+        if ((i+1) % 2) polinom->data[i] = tmp;
+        else polinom->data[i] = 0;
+        tmp = tmp2;
+    }
+    polinom->data[0] = tmp;
+    polinom_calc_degree(polinom);
+}
+
+
+/*
     Метод для очистки полинома
 */
 

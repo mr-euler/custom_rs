@@ -162,7 +162,7 @@ int main() {
 
 
     // Процедура Ченя (позиции ошибок)
-    int solve[sigma->degree];
+    gf_elem_t solve[sigma->degree];
     int length = 0;
     for (int i = 0; i < gf->total_quantity; i++) {
         if (polinom_call(sigma, gf_neg(gf, gf->table[i])) == 0) {
@@ -170,10 +170,20 @@ int main() {
                 length = -1;
                 break;
             }
-            solve[length] = i+1;
+            solve[length] = gf->table[i];
             length++;
         }
     }
+
+    /*
+        Позиции ошибок можно получить путем
+        преобразования элемента поля через
+        gf_get_by_value(solve[i])
+    */
+
+
+    // Алгоритм форни
+    
 
 
     gf_free(gf);

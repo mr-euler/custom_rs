@@ -21,6 +21,7 @@ gf_elem_t polinom_call(polinom_t *polinom, gf_elem_t elem);
 void polinom_mod(polinom_t *dividend, polinom_t *divisor);
 void polinom_right_shift(polinom_t *polinom, int shift);
 polinom_t* polinom_copy(polinom_t *polinom1);
+void polinom_derivative(polinom_t *polinom);
 void polinom_clear(polinom_t *polinom);
 void polinom_print(polinom_t *polinom);
 void polinom_free(polinom_t *polinom);
