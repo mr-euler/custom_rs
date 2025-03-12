@@ -160,8 +160,20 @@ int main() {
     polinom_mod(w, mod);
     polinom_free(mod);
 
-    // Процедура Ченя
-    
+
+    // Процедура Ченя (позиции ошибок)
+    int solve[sigma->degree];
+    int length = 0;
+    for (int i = 0; i < gf->total_quantity; i++) {
+        if (polinom_call(sigma, gf_neg(gf, gf->table[i])) == 0) {
+            if (length == sigma->degree) {
+                length = -1;
+                break;
+            }
+            solve[length] = i+1;
+            length++;
+        }
+    }
 
 
     gf_free(gf);
