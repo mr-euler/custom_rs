@@ -708,7 +708,7 @@ int test16() {
     polinom_derivative(polinom1);
 
     if (polinom1->degree != 3) {
-        printf("\t\tpolinom dirictive error: degree != 3 (%d)\n", polinom1->degree);
+        printf("\t\tpolinom derivative error: degree != 3 (%d)\n", polinom1->degree);
         return 1;
     }
 
@@ -721,7 +721,7 @@ int test16() {
 
     for (int i = 0; i < polinom1->degree; i++) {
         if (polinom1->data[i] != check[i]) {
-            printf("\t\tpolinom dirictive error: wrong element (%d != %d)\n", polinom1->data[i], check[i]);
+            printf("\t\tpolinom derivative error: wrong element (%d != %d)\n", polinom1->data[i], check[i]);
             return 1;
         }
     }
@@ -867,8 +867,8 @@ int main() {
     }
     printf("\t\tпройден\n");
 
-    // Тест 16: проверка фукнции polinom_dirictive
-    printf("\ttest 16: проверка фукнции polinom_dirictive\n");
+    // Тест 16: проверка фукнции polinom_derivative
+    printf("\ttest 16: проверка фукнции polinom_derivative\n");
     if (test16()) {
         printf("\t\tне пройден\n");
         return 1;
