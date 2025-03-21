@@ -185,8 +185,8 @@ void polinom_mult(polinom_t *polinom1, polinom_t *polinom2) {
 */
 
 gf_elem_t polinom_call(polinom_t *polinom, gf_elem_t elem) {
-    gf_elem_t result = 0;
-    for (int i = 0; i < polinom->degree; i++) {
+    gf_elem_t result = polinom->data[0];
+    for (int i = 1; i < polinom->degree; i++) {
         result = gf_add(
             result,
             gf_mult(

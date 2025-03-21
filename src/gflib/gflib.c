@@ -136,7 +136,7 @@ int gf_get_by_value(gf_t *gf, gf_elem_t value) {
         printf("gf get value error: invalid value {%d}", value);
         return 0;
     }
-    return gf->rev_table[value-1];
+    return gf->rev_table[value]-1;
 }
 
 
