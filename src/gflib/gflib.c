@@ -174,6 +174,19 @@ gf_elem_t gf_pow(gf_t *gf, gf_elem_t elem, int degree) {
 
 
 /*
+    Метод для нахождения обратного элемента к члену поля
+*/
+
+gf_elem_t gf_neg(gf_t *gf, gf_elem_t elem) {
+    if (elem == 0) return 0;
+    if (elem == 1) return 1;
+    int degree = gf_get_by_value(gf, elem);
+    degree = gf->total_quantity-1-degree;
+    return gf_get_by_degree(gf, degree);
+}
+
+
+/*
     Нахождение такого элемента поля,
     который нужно умножить на первый
     аргумент, чтобы получить второй.
@@ -186,23 +199,11 @@ gf_elem_t gf_div(gf_t *gf, gf_elem_t a, gf_elem_t b) {
         printf("gf div error: invalid args\n");
         return 0;
     }
-    int elem_a_degree = gf->rev_table[a]-1;
-    int elem_b_degree = gf->rev_table[b]-1;
-    if (elem_b_degree >= elem_a_degree) return gf->table[elem_a_degree + elem_b_degree + 1];
-    else return gf->table[(gf->total_quantity-1) - elem_a_degree + elem_b_degree + 1];
-}
-
-
-/*
-    Метод для нахождения обратного элемента к члену поля
-*/
-
-gf_elem_t gf_neg(gf_t *gf, gf_elem_t elem) {
-    if (elem == 0) return 0;
-    if (elem == 1) return 1;
-    int degree = gf_get_by_value(gf, elem);
-    degree = gf->total_quantity-1-degree;
-    return gf_get_by_degree(gf, degree);
+    return gf_mult(gf, gf_neg(gf, a), b);
+    // int elem_a_degree = gf->rev_table[a]-1;
+    // int elem_b_degree = gf->rev_table[b]-1;
+    // if (elem_b_degree >= elem_a_degree) return gf->table[elem_a_degree + elem_b_degree + 1];
+    // else return gf->table[(gf->total_quantity-1) - elem_a_degree + elem_b_degree + 1];
 }
 
 
