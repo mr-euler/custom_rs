@@ -201,7 +201,12 @@ int main() {
     }
 
     if (length != error_count) {
-        printf("Ошибка при подсчете позиции ошибок (%d)\n", length);
+        printf("Количество ошибок в принятой последовательности превышает допустимое t=%d. Отказ в декодировании.\n", t);
+        printf("Информационный полином: [ ");
+        for (int i = n-1-k; i < n; i++) {
+            printf("%d ", coded[i]);
+        }
+        printf("]\n");
         return 0;
     }
 
@@ -245,7 +250,7 @@ int main() {
 
     // Отображение итоговой кодовой последовательности
     printf("Итоговый полином: [ ");
-    for (int i = 0; i < n; i++) {
+    for (int i = n-1-t; i < n; i++) {
         printf("%d ", encoded->data[i]);
     }
     printf("]\n");
@@ -256,6 +261,8 @@ int main() {
         printf("%d ", polinom_call(encoded, gf_get_by_degree(gf, i)));
     }
     printf("]\n");
+
+    printf("Исправлено %d ошибок\n", length);
 
     gf_free(gf);
     return 0;
