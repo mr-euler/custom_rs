@@ -73,37 +73,6 @@ int main() {
         return 1;
     }
 
-    // gf_print_bin(gf);
-
-    // 16 2 9 12 2 15 1 2 1 2 1 2 1 2 1
-    // gf_elem_t coded[] = { 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 2, 1, 0
-        // Владимиров
-        // 0,
-        // 0,
-        // gf_get_by_degree(gf, 1),
-        // 0,
-        // gf_get_by_degree(gf, 5),
-        // 0,
-        // 0
-
-        // Студфайл
-        // gf_get_by_degree(gf, 5),
-        // gf_get_by_degree(gf, 5),
-        // gf_get_by_degree(gf, 11),
-        // gf_get_by_degree(gf, 12),
-        // gf_get_by_degree(gf, 1),
-        // gf_get_by_degree(gf, 12),
-        // gf_get_by_degree(gf, 13),
-        // gf_get_by_degree(gf, 9),
-        // gf_get_by_degree(gf, 9),
-        // gf_get_by_degree(gf, 14),
-        // gf_get_by_degree(gf, 5),
-        // gf_get_by_degree(gf, 3),
-        // gf_get_by_degree(gf, 2),
-        // gf_get_by_degree(gf, 8),
-        // gf_get_by_degree(gf, 14)
-    // };
-
     // Чтение данных и проверка на соответствие полю
     gf_elem_t coded[n];
     int read_data = 1;
@@ -122,19 +91,12 @@ int main() {
 
     polinom_t *encoded = polinom_init(gf, 1);
     polinom_append(encoded, coded, n);
-    
-    // printf("encoded: ");
-    // polinom_print(encoded);
-    // printf("encoded size: %d\n", encoded->capacity);
 
     // Считаем синдромы от b до b+2t-1
     polinom_t *syndroms = polinom_init(gf, b+2*t);
     for (int i = b; i <= b+2*t-1; i++) {
-        // printf("%d %d\n", i, gf_get_by_value(gf, polinom_call(encoded, gf_get_by_degree(gf, i))));
         polinom_set(syndroms, i, polinom_call(encoded, gf_get_by_degree(gf, i)));
     }
-    // printf("syndrom: ");
-    // polinom_print(syndroms);
 
     // Проверка синдрома на то, содержит ли он только нули
     int syndrom_empty = 1;
@@ -152,89 +114,22 @@ int main() {
 
     // Алгоритм БМ
 
-    /*
     // Исходные данные
-    polinom_t *sigma = polinom_init(gf, 1);
-    polinom_set(sigma, 0, 1);
-    polinom_t *B = polinom_init(gf, 1);
-    polinom_set(B, 0, 1);
-    int L = 0, R = 1, M = 0;
-    
-    while (R <= d-1) {
-        gf_elem_t delta = 0;
-        for (int j = 0; j <= L; j++) {
-            // Первый аргумент
-            gf_elem_t sigma_i;
-            if (j >= sigma->capacity) sigma_i = 0;
-            else sigma_i = sigma->data[j];
-            // Второй аргумент
-            gf_elem_t syndroms_i;
-            if (R-j-1 >= syndroms->capacity) syndroms_i = 0;
-            else syndroms_i = syndroms->data[R-j-1];
-            // Перемножение
-            delta = gf_add(delta, gf_mult(gf, sigma_i, syndroms_i));
-        }
-
-        if (delta == 0) {
-            R++;
-            continue;
-        }
-
-        polinom_t *sigma_new = polinom_copy(sigma); // T(x)
-        polinom_t *B_new = polinom_copy(B);
-        for (int k = 0; k < B_new->degree; k++) {
-            polinom_set(B_new, k, gf_mult(gf, delta, B->data[k]));
-        }
-        polinom_right_shift(B_new, R-M);
-        polinom_add(sigma_new, B_new);
-        polinom_free(B_new);
-
-        if (2*L < R) {
-            for (int k = 0; k < sigma->degree; k++) {
-                polinom_set(sigma, k, gf_div(gf, delta, sigma->data[k]));
-            }
-            polinom_free(B);
-            B = sigma;
-            sigma = sigma_new;
-            L = R - L;
-            M = R;
-        } else {
-            polinom_free(sigma);
-            sigma = sigma_new;
-        }
-        R++;
-    }
-    */
-
-    // /*
-    // Исходные данные
-    // j = b..b+2t-1
-    // printf("Метод БМ: начальные условия\n");
     polinom_t *sigma = polinom_init(gf, n+5);
     polinom_set(sigma, 0, 1);
-    // printf("sigma: ");
-    // polinom_print(sigma);
     polinom_t *p = polinom_init(gf, 2);
     polinom_set(p, 1, 1);
-    // printf("p: ");
-    // polinom_print(p);
     int l = 0;
-    // printf("l = %d\n", l);
     
     for (int i = 1; i < d; i++) {
-        // printf("\nИтерация i = %d\n", i);
         // Пункт 1
         gf_elem_t delta = 0;
         for (int j = 0; j <= l; j++) {
             delta = gf_add(delta, gf_mult(gf, sigma->data[j], syndroms->data[i-j-1]));
         }
-        // printf("delta = %d", delta);
-        // if (delta != 0) printf(" (e^%d)\n", gf_get_by_value(gf, delta));
-        // else printf("\n");
 
         // Пункт 2
         if (delta != 0) {
-            // printf("delta != 0\n");
             // Пункт 3
             polinom_t *sigma_new = polinom_copy(sigma);
             polinom_t *p_new = polinom_copy(p);
@@ -242,63 +137,27 @@ int main() {
                 polinom_set(p_new, k, gf_mult(gf, delta, p->data[k]));
             }
             polinom_add(sigma_new, p_new);
-            // printf("1\n");
             polinom_free(p_new);
-
-            // printf("sigma new: ");
-            // polinom_print(sigma_new);
 
             // Пункт 4
             if (2*l < i) {
-                // printf("2*l < i\n");
                 // Пункт 5
                 l = i - l;
-                // printf("l = %d\n", l);
-                // printf("2\n");
                 polinom_free(p);
                 p = polinom_copy(sigma);
                 for (int k = 0; k < p->degree; k++) {
                     polinom_set(p, k, gf_div(gf, delta, p->data[k]));
                 }
-                // printf("p: ");
-                // polinom_print(p);
-            } else {
-                // printf("2*l >= i\n");
             }
 
             // Пункт 6
-            // printf("3\n");
-            // printf("%d %d %d\n",
-            //     sigma->capacity,
-            //     sigma->degree,
-            //     (sizeof sigma->data) / (sizeof sigma->data[0])
-            // );
             polinom_free(sigma);
             sigma = sigma_new;
-            // printf("sigma: ");
-            // polinom_print(sigma);
-        } else {
-            // printf("delta == 0\n");
         }
 
         // Пункт 7
         polinom_right_shift(p, 1);
-        // printf("p = xp: ");
-        // polinom_print(p);
     }
-    // printf("\nКонец\n\n");
-    // */
-
-    // gf_elem_t tmp = syndroms->data[syndroms->degree-1];
-    // syndroms->data[syndroms->degree-1] = 0;
-    // for (int i = syndroms->degree-2; i > -1; i--) {
-    //     gf_elem_t tmp2 = syndroms->data[i];
-    //     syndroms->data[i] = tmp;
-    //     tmp = tmp2;
-    // }
-    // polinom_calc_degree(syndroms);
-    // printf("syndrom new: ");
-    // polinom_print(syndroms);
 
     // Отображение количества ошибок
     if (sigma->degree-1 > t) {
@@ -317,46 +176,24 @@ int main() {
         w->data[0] = 1;
     }
 
-    // printf("w before: ");
-    // polinom_print(w);
-
     polinom_mult(w, sigma);
-
-    // printf("w mult: ");
-    // polinom_print(w);
-
-    printf("sigma: ");
-    polinom_print(sigma);
 
     polinom_t *mod = polinom_init(gf, 2*t+1);
     polinom_set(mod, 2*t, 1);
     polinom_mod(w, mod);
 
-    // printf("mod: ");
-    // polinom_print(mod);
-
-    // printf("%d\n", mod->capacity);
-
     polinom_free(mod); // TODO: тут появлялась ошибка
 
     // TODO: если sigma->degree-1 != t, то выводить информационное сообщение
-
-    // printf("w: ");
-    // polinom_print(w);
-
-    // printf("sigma: ");
-    // polinom_print(sigma);
-    // printf("%d", sigma->degree);
     
     // Определяем количество ошибок
     int error_count = sigma->degree-1;
 
     // Процедура Ченя (позиции ошибок)
-    gf_elem_t solve[error_count]; // содержит элементы Bjl такие, что sigma(Bjl^-1) == 0
+    gf_elem_t solve[error_count];
     int length = 0;
     for (int i = 0; i < gf->total_quantity; i++) {
         gf_elem_t B = i;
-        // printf("B (%d) neg call: %d\n", B, polinom_call(sigma, gf_neg(gf, B)));
         if (polinom_call(sigma, gf_neg(gf, B)) == 0) {
             solve[length] = B;
             length++;
@@ -374,17 +211,12 @@ int main() {
     }
     printf("]\n");
 
-    // Алгоритм форни
+    // Алгоритм Форни
     polinom_t *sigma_derivative = polinom_copy(sigma);
     polinom_derivative(sigma_derivative);
 
-    // printf("c'(%d) = %d", solve);
-    // printf("sigma derivative: ");
-    // polinom_print(sigma_derivative);
-
     gf_elem_t errors[error_count];
     for (int i = 0; i < error_count; i++) {
-        // printf("%d\n", gf_get_by_value(gf, polinom_call(w, gf_neg(gf, solve[i]))));
         errors[i] = gf_mult(
             gf,
             gf_pow(gf, solve[i], 2-b),
@@ -403,10 +235,6 @@ int main() {
     }
     printf("]\n");
 
-    // Проверка
-    // printf("encoded (err): ");
-    // polinom_print(encoded);
-
     for (int i = 0; i < error_count; i++) {
         polinom_set(
             encoded,
@@ -415,8 +243,6 @@ int main() {
         );
     }
 
-    // printf("encoded: ");
-    // polinom_print(encoded);
     // Отображение итоговой кодовой последовательности
     printf("Итоговый полином: [ ");
     for (int i = 0; i < n; i++) {
@@ -430,12 +256,6 @@ int main() {
         printf("%d ", polinom_call(encoded, gf_get_by_degree(gf, i)));
     }
     printf("]\n");
-
-    // mod = polinom_copy(encoded);
-    // polinom_t *gen_polinom = generating_polinom(gf, b, t);
-    // polinom_mod(mod, gen_polinom);
-    // printf("Проверка: ");
-    // polinom_print(mod);
 
     gf_free(gf);
     return 0;
