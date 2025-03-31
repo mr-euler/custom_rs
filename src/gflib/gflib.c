@@ -164,16 +164,6 @@ gf_elem_t gf_mult(gf_t *gf, gf_elem_t a, gf_elem_t b) {
 
 
 /*
-    Возведение элемента поля в степень.
-*/
-
-gf_elem_t gf_pow(gf_t *gf, gf_elem_t elem, int degree) {
-    if (elem == 0) return 0;
-    return gf->table[(( (gf->rev_table[elem]-1) * degree ) % ( gf->total_quantity-1))+1];
-}
-
-
-/*
     Метод для нахождения обратного элемента к члену поля
 */
 
@@ -183,6 +173,20 @@ gf_elem_t gf_neg(gf_t *gf, gf_elem_t elem) {
     int degree = gf_get_by_value(gf, elem);
     degree = gf->total_quantity-1-degree;
     return gf_get_by_degree(gf, degree);
+}
+
+
+/*
+    Возведение элемента поля в степень.
+*/
+
+gf_elem_t gf_pow(gf_t *gf, gf_elem_t elem, int degree) {
+    if (elem == 0) return 0;
+    if (degree < 0) {
+        elem = gf_neg(gf, elem);
+        degree = -degree;
+    }
+    return gf->table[(( (gf->rev_table[elem]-1) * degree ) % ( gf->total_quantity-1))+1];
 }
 
 
